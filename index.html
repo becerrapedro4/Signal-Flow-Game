@@ -1,44 +1,64 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego AV - Flujo Profesional v6 (draw.io Style)</title>
+    <title>Juego AV - Flujo Profesional v12 (draw.io Style)</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body { font-family: Arial, sans-serif; margin:0; background:#0a0a0a; color:#eee; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
-        header { background:#1a1a1a; padding:12px; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0f0; }
+        header { background:#1a1a1a; padding:12px; display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #0f0; flex-wrap:wrap; }
         .container { display:flex; flex:1; overflow:hidden; }
         .deck { width:310px; background:#1f1f1f; padding:15px; overflow-y:auto; border-right:3px solid #333; }
-        .card { width:100%; height:152px; background:#2a2a2a; border-radius:12px; margin-bottom:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:grab; border:4px solid; transition:0.2s; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.5); }
-        .card:hover { transform:scale(1.08); box-shadow:0 0 20px #0f0; }
+        .card { width:100%; height:135px; background:#2a2a2a; border-radius:12px; margin-bottom:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:grab; border:4px solid; transition:0.2s; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,0.5); position:relative; }
+        .card:hover:not(.depleted) { transform:scale(1.03); box-shadow:0 0 20px #0f0; }
+        .card.depleted { opacity:0.4; cursor:not-allowed; background:#1a1a1a; filter:grayscale(80%); }
+        .card .stock { position:absolute; top:8px; right:8px; background:#0f0; color:#000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:12px; }
         .workspace { flex:1; background:#111; position:relative; overflow:auto; }
-        .canvas { position:absolute; width:3000px; height:2000px; background:repeating-linear-gradient(#1f1f1f 0 40px, transparent 40px 80px); }
-        .placed { position:absolute; width:180px; padding:12px; background:#222; border-radius:12px; border:4px solid; cursor:move; user-select:none; box-shadow:0 6px 16px rgba(0,0,0,0.7); text-align:center; transition:0.1s; }
-        .signal { position:absolute; height:8px; background:linear-gradient(90deg, #00ff88, #00cc66); box-shadow:0 0 12px #0f0; z-index:1; pointer-events:none; border-radius:4px; }
-        .arrow { position:absolute; width:0; height:0; border-top:6px solid transparent; border-bottom:6px solid transparent; border-left:12px solid #00ff88; z-index:2; pointer-events:none; }
+        .canvas { position:absolute; width:3000px; height:2000px; background: repeating-linear-gradient(0deg, #1a1a1a 0px, #1a1a1a 1px, transparent 1px, transparent 40px), repeating-linear-gradient(90deg, #1a1a1a 0px, #1a1a1a 1px, transparent 1px, transparent 40px); }
+        .placed { position:absolute; width:170px; padding:10px; background:#222; border-radius:12px; border:4px solid; cursor:move; user-select:none; box-shadow:0 6px 16px rgba(0,0,0,0.7); text-align:center; transition:0.1s; z-index:2; }
+        .placed:hover { z-index:10; box-shadow:0 0 20px rgba(0,255,0,0.5); }
         .sidebar { width:340px; background:#1f1f1f; padding:15px; overflow-y:auto; border-left:3px solid #333; }
-        button { background:#006600; color:white; border:none; padding:14px; margin:8px 0; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; }
+        button { background:#006600; color:white; border:none; padding:12px; margin:6px 0; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; font-size:13px; }
         button:hover { background:#00aa00; }
-        .failure { color:#ff4444; padding:10px; margin:6px 0; background:rgba(255,60,60,0.15); border-left:5px solid #ff4444; }
-        .context-menu { position:absolute; background:#222; border:2px solid #0f0; border-radius:6px; padding:8px 0; box-shadow:0 4px 12px rgba(0,0,0,0.8); z-index:1000; display:none; min-width:160px; }
-        .context-menu div { padding:8px 20px; cursor:pointer; }
+        button.danger { background:#660000; }
+        button.danger:hover { background:#aa0000; }
+        button.help-btn { background:#886600; }
+        button.help-btn:hover { background:#aa8800; }
+        .failure { color:#ff4444; padding:10px; margin:6px 0; background:rgba(255,60,60,0.15); border-left:5px solid #ff4444; border-radius:4px; font-size:13px; }
+        .success { color:#00ff88; padding:10px; margin:6px 0; background:rgba(0,255,136,0.1); border-left:5px solid #00ff88; border-radius:4px; }
+        .context-menu { position:fixed; background:#222; border:2px solid #0f0; border-radius:6px; padding:8px 0; box-shadow:0 4px 12px rgba(0,0,0,0.8); z-index:1000; display:none; min-width:180px; }
+        .context-menu div { padding:10px 20px; cursor:pointer; font-size:14px; }
         .context-menu div:hover { background:#333; }
+        .context-menu div.danger-item { color:#ff6666; }
+        .context-menu div.danger-item:hover { background:#441111; }
+        .difficulty-badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:8px; }
+        .selected-connection { animation: pulse 0.8s ease-in-out infinite; }
+        .rules-modal { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#1a1a1a; border:3px solid #ffaa00; border-radius:16px; padding:24px; z-index:9999; display:none; max-width:500px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 0 40px rgba(0,0,0,0.9); }
+        .rules-modal h3 { color:#ffaa00; margin-top:0; }
+        .rules-modal .close-btn { position:absolute; top:12px; right:16px; cursor:pointer; font-size:24px; color:#888; background:none; border:none; width:auto; }
+        .rules-modal .close-btn:hover { color:#fff; }
+        .rules-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:9998; display:none; }
+        .hint-box { background:rgba(255,170,0,0.1); border:1px solid #ffaa00; border-radius:8px; padding:10px; margin:8px 0; font-size:12px; color:#ffaa00; display:none; }
+        @keyframes pulse { 0%,100% { box-shadow:0 0 0 6px #ffff00, 0 0 20px #ffff00; } 50% { box-shadow:0 0 0 10px #ffaa00, 0 0 30px #ffaa00; } }
     </style>
 </head>
 <body>
     <header>
-        <h2>Nivel <span id="level">1</span></h2>
-        <div>Puntaje: <span id="score">0</span> | Tiempo: <span id="time">0</span>s</div>
         <div>
-            <button onclick="checkSolution()">✅ Verificar Flujo</button>
-            <button onclick="nextLevel()">→ Siguiente Nivel</button>
+            <h2 style="margin:0;">Nivel <span id="level">1</span>/5</h2>
+            <span id="difficulty-badge" class="difficulty-badge" style="background:#00ff88;color:#000;">FÁCIL</span>
+        </div>
+        <div>⭐ <span id="score">0</span> | ⏱️ <span id="time">0</span>s | 🆘 <span id="helps-count">3</span></div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="checkSolution()" style="width:auto;">✅ Verificar</button>
+            <button onclick="nextLevel()" style="width:auto;">→ Siguiente</button>
         </div>
     </header>
 
     <div class="container">
         <div class="deck">
-            <h3>📦 Tarjetas (Arrastrar)</h3>
+            <h3>📦 Inventario</h3>
             <div id="deck"></div>
         </div>
 
@@ -47,72 +67,178 @@
         </div>
 
         <div class="sidebar">
-            <h3>🎯 Objetivo Nivel <span id="level-obj">1</span></h3>
-            <div id="objective"></div>
+            <h3>🎯 Objetivo</h3>
+            <div id="objective" style="padding:10px;background:#1a1a1a;border-radius:8px;margin-bottom:12px;"></div>
 
-            <h3>⚠️ Fallas Detectadas</h3>
+            <button onclick="requestHelp()" class="help-btn">🆘 Pedir Ayuda (<span id="help-remaining">3</span>)</button>
+            <div class="hint-box" id="hint-box"></div>
+
+            <h3>⚠️ Diagnóstico</h3>
             <div id="failures"></div>
 
-            <h3>🔗 Conexiones</h3>
-            <div id="connections"></div>
+            <h3>🔗 Conexiones Activas</h3>
+            <div id="connections" style="font-size:13px;"></div>
 
             <button onclick="resetLevel()">🔄 Reiniciar Nivel</button>
+            <button onclick="clearAllConnections()" class="danger">🔌 Desconectar Todo</button>
         </div>
     </div>
 
-    <!-- Menú Contextual tipo draw.io -->
+    <div class="rules-overlay" id="rules-overlay"></div>
+    <div class="rules-modal" id="rules-modal">
+        <button class="close-btn" onclick="closeRulesModal()">✕</button>
+        <h3>📖 Reglas de Conexión AV</h3>
+        <div id="rules-content"></div>
+    </div>
+
     <div id="context-menu" class="context-menu">
+        <div onclick="deleteSelected()" class="danger-item">🗑️ Eliminar Tarjeta</div>
+        <div onclick="disconnectSelected()">🔌 Desconectar Tarjeta</div>
         <div onclick="exportDiagram()">📸 Exportar como PNG</div>
-        <div onclick="deleteSelected()" style="color:#ff6666;">🗑️ Eliminar Tarjeta</div>
     </div>
 
     <script>
         const cardsDB = [
-            {id:"notebook", name:"NOTEBOOK", type:"source", color:"#0066ff", icon:"💻"},
-            {id:"ptz", name:"CÁMARA PTZ", type:"camera", color:"#00cc66", icon:"📹"},
-            {id:"cam", name:"CÁMARA", type:"camera", color:"#00cc66", icon:"📹"},
-            {id:"mixer", name:"MIXER DE VIDEO", type:"mixer", color:"#4444ff", icon:"🎛️"},
-            {id:"led", name:"PANTALLA DE LED", type:"display", color:"#00ffff", icon:"🖥️"},
-            {id:"sending", name:"SENDING CARD", type:"hardware", color:"#00aaff", icon:"📤"},
-            {id:"resolume", name:"RESOLUME", type:"software", color:"#9900ff", icon:"🖥️"},
-            {id:"vmix", name:"VMIX", type:"software", color:"#9900ff", icon:"🖥️"},
-            {id:"server", name:"SERVIDOR", type:"hardware", color:"#ff2222", icon:"🖥️"},
-            {id:"ndi", name:"ENVIO NDI", type:"protocol", color:"#ff8800", icon:"🌐"},
-            {id:"srt", name:"ENVIO SRT", type:"protocol", color:"#ff8800", icon:"🌐"},
-            {id:"rtmp", name:"ENVIO RTMP", type:"protocol", color:"#ff5500", icon:"📡"},
-            {id:"youtube", name:"YOUTUBE", type:"destination", color:"#ff0000", icon:"▶️"},
-            {id:"fibra", name:"FIBRA ÓPTICA", type:"cable", color:"#ffaa00", icon:"🔵"},
-            {id:"hdmi20", name:"HDMI 20m", type:"cable", color:"#ff6600", icon:"📺"},
-            {id:"hdmi10", name:"HDMI 10m", type:"cable", color:"#ff6600", icon:"📺"},
-            {id:"hdmi5", name:"HDMI 5m", type:"cable", color:"#ff6600", icon:"📺"},
-            {id:"sdi100", name:"SDI 100m", type:"cable", color:"#ff3300", icon:"🔴"},
-            {id:"sdi50", name:"SDI 50m", type:"cable", color:"#ff3300", icon:"🔴"},
-            {id:"sdi15", name:"SDI 15m", type:"cable", color:"#ff3300", icon:"🔴"},
-            {id:"red50", name:"RED 50m", type:"cable", color:"#4488ff", icon:"🌐"},
-            {id:"red25", name:"RED 25m", type:"cable", color:"#4488ff", icon:"🌐"},
-            {id:"conv", name:"CONVERSOR HDMI-SDI", type:"converter", color:"#ffaa00", icon:"🔄"},
-            {id:"splitter", name:"SPLITTER HDMI", type:"converter", color:"#ffcc00", icon:"🔀"},
-            {id:"switch", name:"SWITCHER DE RED", type:"network", color:"#00aaff", icon:"🔀"},
-            {id:"capture", name:"CAPTURADORA HDMI", type:"capture", color:"#00ccaa", icon:"📥"},
-            {id:"encoder", name:"ENCODER", type:"hardware", color:"#aa00aa", icon:"📤"},
-            {id:"powerpoint", name:"POWER POINT", type:"source", color:"#ff6600", icon:"📊"}
+            {id:"notebook", name:"NOTEBOOK", type:"hardware", color:"#0066ff", icon:"💻", rules:"Hardware. Conecta con cables/protocolos a otros equipos."},
+            {id:"ptz", name:"CÁMARA PTZ", type:"camera", color:"#00cc66", icon:"📹", rules:"Requiere Capturadora (video físico) o NDI/SRT con Switcher"},
+            {id:"cam", name:"CÁMARA", type:"camera", color:"#00cc66", icon:"📹", rules:"Requiere Capturadora (video físico) o NDI/SRT con Switcher"},
+            {id:"mixer", name:"MIXER DE VIDEO", type:"hardware", color:"#4444ff", icon:"🎛️", rules:"Hardware. Conecta con cables/protocolos."},
+            {id:"led", name:"PANTALLA DE LED", type:"display", color:"#00ffff", icon:"🖥️", rules:"Requiere Sending Card + Cable de Red"},
+            {id:"tv", name:"TELEVISOR", type:"display", color:"#00dddd", icon:"📺", rules:"Display final. Conecta con cable."},
+            {id:"proyector", name:"PROYECTOR", type:"display", color:"#00cccc", icon:"📽️", rules:"Display final. Conecta con cable."},
+            {id:"sending", name:"SENDING CARD", type:"hardware", color:"#00aaff", icon:"📤", rules:"Hardware para LED. Conecta con cable de red a LED."},
+            {id:"resolume", name:"RESOLUME", type:"software", color:"#9900ff", icon:"🖥️", rules:"Software. Conecta con cables/protocolos."},
+            {id:"vmix", name:"VMIX", type:"software", color:"#9900ff", icon:"🖥️", rules:"Software. Conecta con cables/protocolos. RTMP→YouTube es directo."},
+            {id:"server", name:"SERVIDOR", type:"hardware", color:"#ff2222", icon:"🖥️", rules:"Hardware. Conecta con cables/protocolos. RTMP→YouTube es directo."},
+            {id:"ndi", name:"ENVIO NDI", type:"protocol", color:"#ff8800", icon:"🌐", rules:"Protocolo de red. Requiere Switcher + Cable de Red."},
+            {id:"srt", name:"ENVIO SRT", type:"protocol", color:"#ff8800", icon:"🌐", rules:"Protocolo de red. Requiere Switcher + Cable de Red."},
+            {id:"rtmp", name:"ENVIO RTMP", type:"protocol", color:"#ff5500", icon:"📡", rules:"Protocolo streaming. VMIX/Server/Encoder → RTMP → YouTube (directo, sin cable)."},
+            {id:"youtube", name:"YOUTUBE", type:"destination", color:"#ff0000", icon:"▶️", rules:"Destino final. Recibe RTMP directo de software/hardware."},
+            {id:"fibra", name:"FIBRA ÓPTICA", type:"cable", color:"#ffaa00", icon:"🔵", rules:"Cable larga distancia."},
+            {id:"hdmi20", name:"HDMI 20m", type:"cable", color:"#ff6600", icon:"📺", rules:"Cable HDMI distancia media."},
+            {id:"hdmi10", name:"HDMI 10m", type:"cable", color:"#ff6600", icon:"📺", rules:"Cable HDMI corta-media."},
+            {id:"hdmi5", name:"HDMI 5m", type:"cable", color:"#ff6600", icon:"📺", rules:"Cable HDMI corta."},
+            {id:"sdi100", name:"SDI 100m", type:"cable", color:"#ff3300", icon:"🔴", rules:"Cable SDI larga distancia."},
+            {id:"sdi50", name:"SDI 50m", type:"cable", color:"#ff3300", icon:"🔴", rules:"Cable SDI media."},
+            {id:"sdi15", name:"SDI 15m", type:"cable", color:"#ff3300", icon:"🔴", rules:"Cable SDI corta."},
+            {id:"red50", name:"RED 50m", type:"cable", color:"#4488ff", icon:"🌐", rules:"Cable de red largo. Para NDI/SRT/Sending→LED."},
+            {id:"red25", name:"RED 25m", type:"cable", color:"#4488ff", icon:"🌐", rules:"Cable de red corto. Para NDI/SRT/Sending→LED."},
+            {id:"conv", name:"CONVERSOR HDMI-SDI", type:"converter", color:"#ffaa00", icon:"🔄", rules:"Convierte formatos de señal."},
+            {id:"splitter", name:"SPLITTER HDMI", type:"converter", color:"#ffcc00", icon:"🔀", rules:"Divide señal HDMI."},
+            {id:"switch", name:"SWITCHER DE RED", type:"network", color:"#00aaff", icon:"🔀", rules:"OBLIGATORIO para NDI/SRT. Conecta con cables de red."},
+            {id:"capture", name:"CAPTURADORA HDMI", type:"capture", color:"#00ccaa", icon:"📥", rules:"OBLIGATORIA para video físico a hardware/software."},
+            {id:"encoder", name:"ENCODER", type:"hardware", color:"#aa00aa", icon:"📤", rules:"Hardware. Conecta con cables/protocolos. RTMP→YouTube directo."},
+            {id:"powerpoint", name:"POWER POINT", type:"source", color:"#ff6600", icon:"📊", rules:"Fuente digital. SOLO conecta directo a Notebook o Servidor (sin cable)."}
         ];
 
         let currentLevel = 1, score = 0, time = 0, timer;
         let placed = [], connections = [], selected = null, contextTarget = null;
+        let cardStock = {};
+        let helpCount = 3;
 
-        const levels = [
-            {desc: "Nivel 1 - Básico: Notebook → Mixer → Pantalla LED", required: ["notebook","mixer","led","sending"]},
-            {desc: "Nivel 2 - Cámara + Distancia: Cámara → Conversor → Mixer → LED", required: ["cam","conv","mixer","led","sending"]},
-            {desc: "Nivel 3 - NDI + Red: PTZ + NDI → Servidor → Resolume → LED", required: ["ptz","ndi","server","resolume","led","sending"]},
-            {desc: "Nivel 4 - Streaming: VMIX + RTMP → YouTube + Pantalla", required: ["vmix","rtmp","youtube","mixer","led","sending"]},
-            {desc: "Nivel 5 - Complejo: Cámara + Encoder + Fibra + YouTube + LED", required: ["ptz","encoder","fibra","vmix","rtmp","youtube","led","sending"]}
+        // TIPOS
+        const physicalVideoTypes = ['camera']; // Necesitan capturadora para hardware/software
+        const hardwareTypes = ['hardware', 'mixer']; // Notebook, Server, Mixer, Sending, Encoder
+        const softwareTypes = ['software']; // VMIX, Resolume
+        const networkProtocols = ['ndi', 'srt']; // Requieren Switcher + Cable de red
+        const networkCables = ['red50', 'red25']; // Cables de red
+        const displayTypes = ['display', 'destination'];
+        
+        // Conexiones directas (sin cable)
+        const directConnections = [
+            { from: 'powerpoint', to: ['notebook', 'server'] }, // PowerPoint → Notebook/Server
+            { from: 'vmix', to: ['rtmp'] }, // VMIX → RTMP
+            { from: 'resolume', to: ['rtmp'] }, // Resolume → RTMP
+            { from: 'server', to: ['rtmp'] }, // Server → RTMP
+            { from: 'encoder', to: ['rtmp'] }, // Encoder → RTMP
+            { from: 'rtmp', to: ['youtube'] }, // RTMP → YouTube
         ];
 
+        const levels = [
+            {
+                desc: "Nivel 1 - Básico: PowerPoint → Notebook → TV",
+                required: ["powerpoint", "notebook", "tv"],
+                difficulty: "FÁCIL",
+                stock: 5,
+                hint: "PowerPoint va directo al Notebook. Del Notebook al TV necesitas un cable HDMI."
+            },
+            {
+                desc: "Nivel 2 - Grabación: 2 Cámaras → Capturadora → Mixer → Proyector",
+                required: ["cam", "cam", "capture", "mixer", "proyector"],
+                difficulty: "FÁCIL",
+                stock: 5,
+                hint: "Cámaras a Capturadora con cable. Capturadora a Mixer con cable. Mixer a Proyector con cable."
+            },
+            {
+                desc: "Nivel 3 - CCTV: 3 Cámaras + 2 PTZ + PowerPoint → Switcher + NDI → VMIX → Sending → LED",
+                required: ["cam", "cam", "cam", "ptz", "ptz", "powerpoint", "switch", "ndi", "vmix", "sending", "led"],
+                difficulty: "MEDIO",
+                stock: 5,
+                hint: "PowerPoint al Server/Notebook directo. PTZ usa NDI con Switcher. Sending→Cable Red→LED."
+            },
+            {
+                desc: "Nivel 4 - Streaming: 2 Cámaras + 2 PTZ + PowerPoint → Switcher → VMIX → RTMP → YouTube",
+                required: ["cam", "cam", "ptz", "ptz", "powerpoint", "switch", "vmix", "rtmp", "youtube"],
+                difficulty: "MEDIO",
+                stock: 3,
+                hint: "PowerPoint al Server/Notebook. VMIX→RTMP→YouTube es directo (sin cables)."
+            },
+            {
+                desc: "Nivel 5 - Complejo: 3 PTZ remotos + PowerPoint → Servidor → Switcher + NDI → VMIX → Stream + LED",
+                required: ["ptz", "ptz", "ptz", "powerpoint", "server", "switch", "ndi", "vmix", "rtmp", "youtube", "sending", "led"],
+                difficulty: "DIFÍCIL",
+                stock: 3,
+                hint: "PowerPoint→Server directo. PTZ→NDI→Switcher con cables de red. VMIX→RTMP→YouTube directo."
+            }
+        ];
+
+        const allRulesHTML = `
+            <div style="line-height:1.8;font-size:13px;">
+                <p>🟢 <b>CONEXIONES DIRECTAS (sin cable):</b></p>
+                <p style="margin-left:16px;">• PowerPoint → Notebook / Servidor</p>
+                <p style="margin-left:16px;">• VMIX / Resolume / Server / Encoder → RTMP → YouTube</p>
+                
+                <p style="margin-top:12px;">🔵 <b>CONEXIONES CON CABLE/PROTOCOLO:</b></p>
+                <p style="margin-left:16px;">• Notebook, Servidor, Mixer, Encoder y todo hardware se interconectan con cables o protocolos.</p>
+                <p style="margin-left:16px;">• Cámaras/PTZ requieren Capturadora para video físico a hardware/software.</p>
+                
+                <p style="margin-top:12px;">🔴 <b>PROTOCOLOS DE RED (NDI/SRT):</b></p>
+                <p style="margin-left:16px;">• Requieren Switcher de Red + Cable de Red (RED 25m/50m).</p>
+                
+                <p style="margin-top:12px;">🟡 <b>PANTALLA LED:</b></p>
+                <p style="margin-left:16px;">• Sending Card → Cable de Red → Pantalla LED.</p>
+                
+                <hr style="border-color:#333;">
+                <p style="font-size:11px;color:#888;">💡 Las ayudas cuestan -50 puntos cada una.</p>
+            </div>
+        `;
+
+        function isDirectConnection(fromId, toId) {
+            for (const dc of directConnections) {
+                if (dc.from === fromId && dc.to.includes(toId)) return true;
+                if (dc.from === toId && dc.to.includes(fromId)) return true;
+            }
+            return false;
+        }
+
+        function getDifficultyColor(d) {
+            return { 'FÁCIL': '#00ff88', 'MEDIO': '#ffaa00', 'DIFÍCIL': '#ff4444' }[d] || '#00ff88';
+        }
+
         function startTimer() {
-            time = 0;
-            clearInterval(timer);
-            timer = setInterval(() => document.getElementById('time').textContent = ++time, 1000);
+            time = 0; clearInterval(timer);
+            timer = setInterval(() => { time++; document.getElementById('time').textContent = time; }, 1000);
+        }
+
+        function initStock() {
+            cardStock = {};
+            const amt = levels[currentLevel-1].stock;
+            cardsDB.forEach(c => cardStock[c.id] = amt);
+        }
+
+        function updateHelpDisplay() {
+            document.getElementById('helps-count').textContent = helpCount;
+            document.getElementById('help-remaining').textContent = helpCount;
         }
 
         function renderDeck() {
@@ -121,240 +247,371 @@
             cardsDB.forEach(card => {
                 const div = document.createElement('div');
                 div.className = 'card';
+                if (cardStock[card.id] <= 0) div.classList.add('depleted');
                 div.style.borderColor = card.color;
-                div.draggable = true;
-                div.innerHTML = `<div style="font-size:46px">${card.icon}</div><strong>${card.name}</strong>`;
-                div.ondragstart = () => window.dragged = card;
+                div.draggable = cardStock[card.id] > 0;
+                div.innerHTML = `<span class="stock">${cardStock[card.id]}</span><div style="font-size:38px">${card.icon}</div><strong style="font-size:12px;">${card.name}</strong>`;
+                div.ondragstart = (e) => {
+                    if (cardStock[card.id] <= 0) { e.preventDefault(); return; }
+                    e.dataTransfer.setData('text/plain', card.id);
+                    window.dragged = card;
+                };
                 deck.appendChild(div);
             });
+            updateHelpDisplay();
+        }
+
+        function requestHelp() {
+            if (helpCount <= 0) { showTemporaryMessage("❌ No te quedan ayudas"); return; }
+            helpCount--;
+            updateHelpDisplay();
+            score = Math.max(0, score - 50);
+            document.getElementById('score').textContent = score;
+            document.getElementById('rules-content').innerHTML = allRulesHTML;
+            document.getElementById('rules-modal').style.display = 'block';
+            document.getElementById('rules-overlay').style.display = 'block';
+            
+            // Mostrar hint del nivel actual
+            const hint = levels[currentLevel-1].hint;
+            document.getElementById('hint-box').style.display = 'block';
+            document.getElementById('hint-box').textContent = '💡 ' + hint;
+            
+            showTemporaryMessage("📖 Reglas reveladas (-50 puntos)");
+        }
+
+        function closeRulesModal() {
+            document.getElementById('rules-modal').style.display = 'none';
+            document.getElementById('rules-overlay').style.display = 'none';
         }
 
         function initCanvas() {
             const canvas = document.getElementById('canvas');
             canvas.innerHTML = '';
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("id", "connections-svg");
+            svg.setAttribute("width", "3000"); svg.setAttribute("height", "2000");
+            svg.style.cssText = "position:absolute;top:0;left:0;pointer-events:none;z-index:1;";
+            canvas.appendChild(svg);
             canvas.ondragover = e => e.preventDefault();
             canvas.ondrop = e => {
                 e.preventDefault();
+                const cardId = e.dataTransfer.getData('text/plain');
+                const card = cardsDB.find(c => c.id === cardId);
+                if (!card || cardStock[card.id] <= 0) return;
                 const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left + canvas.scrollLeft - 90;
-                const y = e.clientY - rect.top + canvas.scrollTop - 75;
-                placeCard(window.dragged, Math.max(30, x), Math.max(30, y));
+                placeCard(card, Math.max(30, e.clientX - rect.left + canvas.scrollLeft - 85), Math.max(30, e.clientY - rect.top + canvas.scrollTop - 65));
             };
         }
 
         function placeCard(card, x, y) {
-            if (placed.find(p => p.id === card.id)) return alert("Ya colocaste esta tarjeta");
+            if (cardStock[card.id] <= 0) { showTemporaryMessage("❌ Sin stock"); return; }
+            cardStock[card.id]--;
             const el = document.createElement('div');
             el.className = 'placed';
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
+            el.style.left = x + 'px'; el.style.top = y + 'px';
             el.style.borderColor = card.color;
-            el.innerHTML = `<div style="font-size:42px">${card.icon}</div><strong>${card.name}</strong>`;
-            el.onclick = () => selectCard(el, card);
-            el.oncontextmenu = (e) => { e.preventDefault(); showContextMenu(e, el, card.id); };
+            el.innerHTML = `<div style="font-size:36px">${card.icon}</div><strong style="font-size:12px;">${card.name}</strong>`;
+            el.dataset.cardId = card.id; el.dataset.cardType = card.type;
+            el.addEventListener('click', (e) => { e.stopPropagation(); selectCard(el, card); });
+            el.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e, el, card.id); });
             makeDraggable(el);
             document.getElementById('canvas').appendChild(el);
-            placed.push({id: card.id, el, data: card});
+            placed.push({id: card.id, el, data: card, instanceId: Date.now() + Math.random()});
+            renderDeck();
         }
 
         function makeDraggable(el) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            el.onmousedown = dragMouseDown;
-
-            function dragMouseDown(e) {
-                if (e.target.tagName === "STRONG" || e.target.tagName === "DIV") {
-                    e.preventDefault();
-                    pos3 = e.clientX; pos4 = e.clientY;
-                    document.onmouseup = closeDragElement;
-                    document.onmousemove = elementDrag;
-                }
-            }
-
-            function elementDrag(e) {
-                e.preventDefault();
-                pos1 = pos3 - e.clientX;
-                pos2 = pos4 - e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                el.style.top = (el.offsetTop - pos2) + "px";
-                el.style.left = (el.offsetLeft - pos1) + "px";
-                redrawAllLines();
-            }
-
-            function closeDragElement() {
-                document.onmouseup = null;
-                document.onmousemove = null;
-            }
+            let p1=0,p2=0,p3=0,p4=0,dragging=false;
+            el.onmousedown = function(e) {
+                if (e.button !== 0) return;
+                e.preventDefault(); e.stopPropagation();
+                dragging=true; p3=e.clientX; p4=e.clientY; el.style.zIndex='100';
+                document.onmouseup = () => { if(!dragging)return; dragging=false; el.style.zIndex='2'; document.onmouseup=null; document.onmousemove=null; redrawAllConnections(); };
+                document.onmousemove = (e) => { if(!dragging)return; e.preventDefault(); p1=p3-e.clientX; p2=p4-e.clientY; p3=e.clientX; p4=e.clientY; el.style.top=(el.offsetTop-p2)+"px"; el.style.left=(el.offsetLeft-p1)+"px"; redrawAllConnections(); };
+            };
         }
 
         function selectCard(el, card) {
-            if (!selected) {
-                selected = {el, card};
-                el.style.boxShadow = '0 0 0 6px #ffff00';
-            } else if (selected.el !== el) {
-                if (!isValidConnection(selected.card, card)) {
-                    alert("❌ Debes usar un cable, conversor o protocolo entre equipos.");
-                    selected = null;
-                    return;
-                }
+            if (!selected) { selected = {el, card}; el.classList.add('selected-connection'); }
+            else if (selected.el !== el) {
+                const v = validateConnection(selected.card, card);
+                if (!v.valid) { showTemporaryMessage(`❌ ${v.message}`); deselectCard(); return; }
                 createConnection(selected.el, el, selected.card, card);
-                selected.el.style.boxShadow = '';
-                selected = null;
-            } else {
-                selected.el.style.boxShadow = '';
-                selected = null;
-            }
+                deselectCard();
+            } else deselectCard();
         }
 
-        function isValidConnection(from, to) {
-            const intermediary = ['cable','converter','protocol','network'];
-            return intermediary.includes(from.type) || intermediary.includes(to.type);
+        function deselectCard() { if (selected) { selected.el.classList.remove('selected-connection'); selected = null; } }
+
+        function validateConnection(from, to) {
+            if (from.id === to.id) return {valid: false, message: "No se puede conectar una tarjeta consigo misma"};
+            if (connections.find(c => (c.from===from.id&&c.to===to.id)||(c.from===to.id&&c.to===from.id))) return {valid: false, message: "Conexión ya existe"};
+            
+            const fid = from.id, tid = to.id, ftype = from.type, ttype = to.type;
+            
+            // CONEXIONES DIRECTAS (sin cable)
+            if (isDirectConnection(fid, tid)) return {valid: true};
+            
+            // PowerPoint SOLO a Notebook/Server
+            if (fid === 'powerpoint' && !['notebook','server'].includes(tid)) return {valid: false, message: "PowerPoint solo conecta directo a Notebook o Servidor"};
+            if (tid === 'powerpoint' && !['notebook','server'].includes(fid)) return {valid: false, message: "PowerPoint solo conecta directo a Notebook o Servidor"};
+            
+            // RTMP → YouTube es directo
+            if ((fid==='rtmp'&&tid==='youtube') || (tid==='rtmp'&&fid==='youtube')) return {valid: true};
+            
+            // Sending → Cable Red → LED
+            if (fid==='sending'&&tid==='led') return {valid: false, message: "Sending Card necesita CABLE DE RED para conectar a LED"};
+            if (tid==='sending'&&fid==='led') return {valid: false, message: "LED necesita CABLE DE RED desde Sending Card"};
+            if (networkCables.includes(fid)&&tid==='led') {
+                if (!connections.some(c=>(c.from==='sending'&&c.to===fid)||(c.to==='sending'&&c.from===fid))) return {valid: false, message: "El cable de red debe conectarse primero a Sending Card"};
+                return {valid: true};
+            }
+            if (networkCables.includes(tid)&&fid==='led') {
+                if (!connections.some(c=>(c.from==='sending'&&c.to===tid)||(c.to==='sending'&&c.from===tid))) return {valid: false, message: "El cable de red debe conectarse primero a Sending Card"};
+                return {valid: true};
+            }
+            if (fid==='sending'&&networkCables.includes(tid)) return {valid: true};
+            if (tid==='sending'&&networkCables.includes(fid)) return {valid: true};
+            if (networkCables.includes(fid)&&!['sending','led'].includes(tid)) return {valid: false, message: "Cables de red solo para Sending↔LED o NDI/SRT"};
+            if (networkCables.includes(tid)&&!['sending','led'].includes(fid)) return {valid: false, message: "Cables de red solo para Sending↔LED o NDI/SRT"};
+            
+            // NDI/SRT → necesita Switcher + Cable de red
+            if (networkProtocols.includes(fid)) {
+                if (!placed.some(p=>p.id==='switch') && tid!=='switch') return {valid: false, message: `${from.name} requiere SWITCHER DE RED`};
+                // NDI/SRT debe usar cable de red para conectar
+                if (!networkCables.includes(tid) && !['switch','notebook','server','vmix','resolume','ptz','cam'].includes(tid)) return {valid: false, message: "Protocolos de red necesitan cable de red"};
+            }
+            if (networkProtocols.includes(tid)) {
+                if (!placed.some(p=>p.id==='switch') && fid!=='switch') return {valid: false, message: `${to.name} requiere SWITCHER DE RED`};
+                if (!networkCables.includes(fid) && !['switch','notebook','server','vmix','resolume','ptz','cam'].includes(fid)) return {valid: false, message: "Protocolos de red necesitan cable de red"};
+            }
+            
+            // Switcher puede conectar con cables de red y protocolos
+            if (fid==='switch'||tid==='switch') return {valid: true};
+            
+            // Hardware ↔ Hardware/Software necesita cable/protocolo (no directo)
+            if ((hardwareTypes.includes(ftype)||softwareTypes.includes(ftype)) && (hardwareTypes.includes(ttype)||softwareTypes.includes(ttype))) {
+                return {valid: false, message: "Hardware/Software se conectan con cables o protocolos (no directo)"};
+            }
+            
+            // Cámaras → Capturadora para hardware/software
+            if (physicalVideoTypes.includes(ftype) && (hardwareTypes.includes(ttype)||softwareTypes.includes(ttype))) {
+                return {valid: false, message: `${from.name} requiere CAPTURADORA para conectar a ${to.name}`};
+            }
+            if (physicalVideoTypes.includes(ttype) && (hardwareTypes.includes(ftype)||softwareTypes.includes(ftype))) {
+                return {valid: false, message: `${to.name} requiere CAPTURADORA para conectar a ${from.name}`};
+            }
+            
+            // Capturadora
+            if (fid==='capture'||tid==='capture') return {valid: true};
+            
+            // Cables (no de red), conversores
+            if (['cable','converter','network','protocol'].includes(ftype)||['cable','converter','network','protocol'].includes(ttype)) return {valid: true};
+            
+            // Displays
+            if (displayTypes.includes(ftype)||displayTypes.includes(ttype)) return {valid: true};
+            
+            return {valid: false, message: "Conexión no permitida. Pide ayuda (🆘)."};
         }
 
         function createConnection(fromEl, toEl, fromCard, toCard) {
-            const canvas = document.getElementById('canvas');
-            const line = document.createElement('div');
-            const arrow = document.createElement('div');
-            line.className = 'signal';
-            arrow.className = 'arrow';
-            const id = 'conn-' + Date.now();
-            line.id = id;
-            arrow.id = id + '-arrow';
-            canvas.appendChild(line);
-            canvas.appendChild(arrow);
-            connections.push({id, from: fromCard.id, to: toCard.id, fromName: fromCard.name, toName: toCard.name, line, arrow});
-            redrawAllLines();
-            updateConnections();
+            connections.push({
+                id: 'conn-'+Date.now()+'-'+Math.random().toString(36).substr(2,5),
+                from: fromCard.id, to: toCard.id,
+                fromName: fromCard.name, toName: toCard.name,
+                fromEl, toEl
+            });
+            redrawAllConnections(); updateConnections();
+            showTemporaryMessage(`✅ ${fromCard.name} → ${toCard.name}`);
         }
 
-        function redrawAllLines() {
+        function redrawAllConnections() {
+            const svg = document.getElementById('connections-svg');
+            if (!svg) return;
+            svg.innerHTML = '';
+            const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+            const marker = document.createElementNS("http://www.w3.org/2000/svg","marker");
+            marker.setAttribute("id","arrowhead"); marker.setAttribute("markerWidth","12"); marker.setAttribute("markerHeight","8");
+            marker.setAttribute("refX","12"); marker.setAttribute("refY","4"); marker.setAttribute("orient","auto");
+            const ap = document.createElementNS("http://www.w3.org/2000/svg","polygon");
+            ap.setAttribute("points","0 0, 12 4, 0 8"); ap.setAttribute("fill","#00ff88");
+            marker.appendChild(ap); defs.appendChild(marker);
+            svg.appendChild(defs);
+            
             connections.forEach(conn => {
-                const fromEl = placed.find(p => p.id === conn.from)?.el;
-                const toEl = placed.find(p => p.id === conn.to)?.el;
-                if (!fromEl || !toEl) return;
-
-                const f = fromEl.getBoundingClientRect();
-                const t = toEl.getBoundingClientRect();
-                const c = document.getElementById('canvas').getBoundingClientRect();
-
-                const x1 = f.left + f.width/2 - c.left;
-                const y1 = f.top + f.height/2 - c.top;
-                const x2 = t.left + t.width/2 - c.left;
-                const y2 = t.top + t.height/2 - c.top;
-
-                const length = Math.hypot(x2 - x1, y2 - y1);
-                const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-
-                conn.line.style.left = x1 + 'px';
-                conn.line.style.top = y1 + 'px';
-                conn.line.style.width = length + 'px';
-                conn.line.style.transform = `rotate(${angle}deg)`;
-
-                conn.arrow.style.left = (x2 - 6) + 'px';
-                conn.arrow.style.top = (y2 - 6) + 'px';
-                conn.arrow.style.transform = `rotate(${angle + 180}deg)`;
+                const fe=conn.fromEl, te=conn.toEl;
+                if(!fe||!te||!document.contains(fe)||!document.contains(te)) return;
+                const cr = document.getElementById('canvas').getBoundingClientRect();
+                const fr=fe.getBoundingClientRect(), tr=te.getBoundingClientRect();
+                const cx1=fr.left+fr.width/2-cr.left, cy1=fr.top+fr.height/2-cr.top;
+                const cx2=tr.left+tr.width/2-cr.left, cy2=tr.top+tr.height/2-cr.top;
+                const ang=Math.atan2(cy2-cy1,cx2-cx1);
+                const fEdge=getEdgePoint(fr,cr,ang), tEdge=getEdgePoint(tr,cr,ang+Math.PI);
+                
+                const isDirect = isDirectConnection(conn.from, conn.to);
+                const isNetCable = networkCables.includes(conn.from)||networkCables.includes(conn.to);
+                let color = '#00ff88';
+                if (isDirect) color = '#ffaa00';
+                if (isNetCable) color = '#4488ff';
+                
+                const mx=(fEdge.x+tEdge.x)/2, my=(fEdge.y+tEdge.y)/2;
+                const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+                path.setAttribute("d",`M ${fEdge.x} ${fEdge.y} Q ${mx} ${my} ${tEdge.x} ${tEdge.y}`);
+                path.setAttribute("stroke",color); path.setAttribute("stroke-width","3"); path.setAttribute("fill","none");
+                path.setAttribute("marker-end","url(#arrowhead)");
+                if (isDirect) path.setAttribute("stroke-dasharray","4,4");
+                if (isNetCable) path.setAttribute("stroke-dasharray","8,4");
+                svg.appendChild(path);
             });
+        }
+
+        function getEdgePoint(rect, canvasRect, angle) {
+            const cx=rect.left+rect.width/2-canvasRect.left, cy=rect.top+rect.height/2-canvasRect.top;
+            const hw=rect.width/2+4, hh=rect.height/2+4;
+            const cos=Math.cos(angle), sin=Math.sin(angle);
+            let t = Math.abs(cos*hh)>Math.abs(sin*hw) ? hw/Math.abs(cos) : hh/Math.abs(sin);
+            return {x:cx+cos*t, y:cy+sin*t};
         }
 
         function updateConnections() {
-            document.getElementById('connections').innerHTML = connections.map(c => 
-                `<div style="font-size:13px">→ ${c.fromName} → ${c.toName}</div>`
-            ).join('');
+            document.getElementById('connections').innerHTML = connections.length ? connections.map(c => {
+                const isDirect = isDirectConnection(c.from, c.to);
+                const isNet = networkCables.includes(c.from)||networkCables.includes(c.to);
+                let icon='', bc='#00ff88', bs='';
+                if(isDirect){icon='🟠';bc='#ffaa00';bs='border-style:dashed;';}
+                if(isNet){icon='🔵';bc='#4488ff';bs='border-style:dashed;';}
+                return `<div style="font-size:11px;padding:5px;background:#1a1a1a;margin:3px 0;border-radius:4px;border-left:3px solid ${bc};${bs}">${c.fromName} → ${c.toName} ${icon}</div>`;
+            }).join('') : '<div style="color:#666;font-size:12px;">Sin conexiones</div>';
         }
 
-        function showContextMenu(e, el, id) {
-            contextTarget = {el, id};
-            const menu = document.getElementById('context-menu');
-            menu.style.display = 'block';
-            menu.style.left = e.pageX + 'px';
-            menu.style.top = e.pageY + 'px';
-        }
-
-        function deleteSelected() {
-            if (!contextTarget) return;
-            if (confirm("¿Eliminar esta tarjeta y sus conexiones?")) {
+        function showContextMenu(e,el,id){contextTarget={el,id};const m=document.getElementById('context-menu');m.style.display='block';m.style.left=Math.min(e.pageX,innerWidth-190)+'px';m.style.top=Math.min(e.pageY,innerHeight-140)+'px';}
+        function deleteSelected(){
+            if(!contextTarget)return;
+            if(confirm("¿Eliminar y devolver al inventario?")){
+                if(cardStock[contextTarget.id]!==undefined)cardStock[contextTarget.id]++;
+                connections=connections.filter(c=>c.fromEl!==contextTarget.el&&c.toEl!==contextTarget.el);
+                placed=placed.filter(p=>p.el!==contextTarget.el);
                 contextTarget.el.remove();
-                placed = placed.filter(p => p.id !== contextTarget.id);
-                connections = connections.filter(c => c.from !== contextTarget.id && c.to !== contextTarget.id);
-                redrawAllLines();
-                updateConnections();
+                redrawAllConnections(); updateConnections(); renderDeck();
             }
             hideContextMenu();
         }
-
-        function exportDiagram() {
-            const canvasArea = document.getElementById('canvas');
-            html2canvas(canvasArea, {scale: 1.5, backgroundColor: '#111'}).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `flujo-av-nivel${currentLevel}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+        function disconnectSelected(){
+            if(!contextTarget)return;
+            const before=connections.length;
+            connections=connections.filter(c=>c.fromEl!==contextTarget.el&&c.toEl!==contextTarget.el);
+            redrawAllConnections(); updateConnections();
+            showTemporaryMessage(`🔌 ${before-connections.length} conexiones eliminadas`);
+            hideContextMenu();
+        }
+        function clearAllConnections(){
+            if(!connections.length)return;
+            if(confirm("¿Desconectar todo?")){connections=[];redrawAllConnections();updateConnections();showTemporaryMessage("🔌 Todo desconectado");}
+        }
+        function exportDiagram(){
+            html2canvas(document.getElementById('canvas'),{scale:2,backgroundColor:'#111'}).then(canvas=>{
+                const a=document.createElement('a'); a.download=`flujo-av-nivel${currentLevel}.png`; a.href=canvas.toDataURL('image/png'); a.click();
+                showTemporaryMessage("📸 PNG exportado");
             });
             hideContextMenu();
         }
-
-        function hideContextMenu() {
-            document.getElementById('context-menu').style.display = 'none';
+        function showTemporaryMessage(msg){
+            const d=document.createElement('div');
+            d.style.cssText=`position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:${msg.includes('❌')?'#ff4444':'#00ff88'};padding:12px 24px;border-radius:8px;border:2px solid ${msg.includes('❌')?'#ff4444':'#00ff88'};z-index:9999;font-weight:bold;animation:fadeInOut 2.5s forwards;max-width:80%;text-align:center;`;
+            d.textContent=msg; document.body.appendChild(d); setTimeout(()=>d.remove(),2500);
         }
+        function hideContextMenu(){document.getElementById('context-menu').style.display='none';contextTarget=null;}
 
-        function checkSolution() {
-            const failures = [];
-            const placedIds = placed.map(p => p.id);
-            const lvl = levels[currentLevel-1];
-
-            if (lvl.required.some(r => !placedIds.includes(r))) {
-                failures.push("Falta algo en el flujo de señal");
-            }
-            if (placedIds.includes('led') && !placedIds.includes('sending')) {
-                failures.push("Falta Sending Card antes de la Pantalla LED");
-            }
-            if (placedIds.includes('youtube')) {
-                if (!placedIds.includes('rtmp') || !['vmix','server','encoder'].some(s => placedIds.includes(s))) {
-                    failures.push("Streaming a YouTube requiere RTMP + fuente compatible");
+        function checkSolution(){
+            const failures=[];
+            const pIds=placed.map(p=>p.id), pData=placed.map(p=>p.data);
+            const lvl=levels[currentLevel-1];
+            const req={}; lvl.required.forEach(r=>req[r]=(req[r]||0)+1);
+            const plc={}; pIds.forEach(id=>plc[id]=(plc[id]||0)+1);
+            
+            for(const[id,count]of Object.entries(req)){
+                if((plc[id]||0)<count){
+                    const card=cardsDB.find(c=>c.id===id);
+                    failures.push(`Falta ${card?card.name:id} (necesitas ${count}, tienes ${plc[id]||0})`);
                 }
             }
-            if (connections.length < 3) failures.push("Falta algo en el flujo de señal");
-
-            const failDiv = document.getElementById('failures');
-            failDiv.innerHTML = failures.length ? 
-                failures.map(f => `<div class="failure">⚠️ ${f}</div>`).join('') : 
-                '<div style="color:#0f0">✅ Flujo correcto</div>';
-
-            if (failures.length === 0) {
-                const points = Math.max(300, 1200 - time * 7);
-                score += points;
-                document.getElementById('score').textContent = score;
-                alert(`¡Nivel ${currentLevel} completado exitosamente!\n+${points} puntos`);
-                nextLevel();
+            
+            if(pIds.includes('led')){
+                if(!pIds.includes('sending')) failures.push("LED requiere SENDING CARD");
+                const hasS2R=connections.some(c=>(c.from==='sending'&&networkCables.includes(c.to))||(c.to==='sending'&&networkCables.includes(c.from)));
+                const hasR2L=connections.some(c=>(networkCables.includes(c.from)&&c.to==='led')||(networkCables.includes(c.to)&&c.from==='led'));
+                if(!hasS2R||!hasR2L) failures.push("Necesitas: Sending Card → Cable Red → LED");
+            }
+            
+            if(pIds.includes('youtube')&&!pIds.includes('rtmp')) failures.push("YouTube requiere RTMP");
+            
+            if((pIds.includes('ndi')||pIds.includes('srt'))&&!pIds.includes('switch')) failures.push("NDI/SRT requiere SWITCHER DE RED");
+            
+            const hasPhysVid=pData.some(p=>physicalVideoTypes.includes(p.type));
+            const hasHW=pData.some(p=>hardwareTypes.includes(p.type)||softwareTypes.includes(p.type));
+            if(hasPhysVid&&hasHW&&!pIds.includes('capture')&&!pIds.includes('ndi')&&!pIds.includes('srt')) failures.push("Video físico requiere CAPTURADORA");
+            
+            if(connections.length<lvl.required.length-1) failures.push(`Más conexiones necesarias (mín ${lvl.required.length-1}, tienes ${connections.length})`);
+            
+            const fd=document.getElementById('failures');
+            if(!failures.length){
+                fd.innerHTML='<div class="success">✅ ¡Flujo correcto!</div>';
+                const pts=Math.max(200,1000-time*5);
+                score+=pts; document.getElementById('score').textContent=score;
+                if(currentLevel===5){
+                    setTimeout(()=>alert(`🏆 ¡FELICITACIONES!\n\n⭐ Puntaje Final: ${score}\n⏱️ Tiempo: ${time}s\n🆘 Ayudas: ${3-helpCount}\n\n¡Comparte con tu equipo!`),300);
+                }else{
+                    setTimeout(()=>{alert(`✅ Nivel ${currentLevel} completo!\n+${pts} pts\n⭐ Total: ${score}`); nextLevel();},300);
+                }
+            }else{
+                fd.innerHTML=failures.map(f=>`<div class="failure">⚠️ ${f}</div>`).join('');
             }
         }
 
-        function nextLevel() {
-            if (currentLevel >= 5) {
-                alert("¡Felicitaciones! Has completado todos los niveles del simulador.");
-                return;
-            }
+        function nextLevel(){
+            if(currentLevel>=5){alert(`🏆 Juego completado. ⭐ ${score} puntos`);return;}
             currentLevel++;
-            document.getElementById('level').textContent = currentLevel;
-            document.getElementById('level-obj').textContent = currentLevel;
+            document.getElementById('level').textContent=currentLevel;
+            const lvl=levels[currentLevel-1];
+            document.getElementById('difficulty-badge').textContent=lvl.difficulty;
+            document.getElementById('difficulty-badge').style.background=getDifficultyColor(lvl.difficulty);
+            document.getElementById('difficulty-badge').style.color=lvl.difficulty==='MEDIO'?'#000':'#fff';
+            helpCount=3; document.getElementById('hint-box').style.display='none';
             resetLevel();
         }
 
-        function resetLevel() {
-            placed = []; connections = [];
-            document.getElementById('failures').innerHTML = '';
-            document.getElementById('connections').innerHTML = '';
-            document.getElementById('objective').innerHTML = levels[currentLevel-1].desc;
-            initCanvas();
-            startTimer();
+        function resetLevel(){
+            placed=[]; connections=[]; selected=null;
+            document.getElementById('failures').innerHTML='';
+            document.getElementById('connections').innerHTML='';
+            document.getElementById('objective').innerHTML=levels[currentLevel-1].desc;
+            document.getElementById('level').textContent=currentLevel;
+            document.getElementById('hint-box').style.display='none';
+            const lvl=levels[currentLevel-1];
+            document.getElementById('difficulty-badge').textContent=lvl.difficulty;
+            document.getElementById('difficulty-badge').style.background=getDifficultyColor(lvl.difficulty);
+            document.getElementById('difficulty-badge').style.color=lvl.difficulty==='MEDIO'?'#000':'#fff';
+            initStock(); initCanvas(); renderDeck(); startTimer();
         }
 
-        document.addEventListener('click', hideContextMenu);
+        document.addEventListener('click',(e)=>{
+            if(!e.target.closest('.context-menu')&&!e.target.closest('.placed')){hideContextMenu();deselectCard();}
+            if(e.target===document.getElementById('rules-overlay'))closeRulesModal();
+        });
+        document.addEventListener('keydown',(e)=>{
+            if(e.key==='Escape'){hideContextMenu();deselectCard();closeRulesModal();}
+            if(e.key==='Delete'&&contextTarget)deleteSelected();
+        });
 
-        window.onload = () => {
-            renderDeck();
-            initCanvas();
-            resetLevel();
+        const style=document.createElement('style');
+        style.textContent=`@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(20px);}20%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;transform:translateX(-50%) translateY(-20px);}}`;
+        document.head.appendChild(style);
+
+        window.onload=()=>{
+            const lvl=levels[0];
+            document.getElementById('difficulty-badge').textContent=lvl.difficulty;
+            document.getElementById('difficulty-badge').style.background=getDifficultyColor(lvl.difficulty);
+            initStock(); renderDeck(); initCanvas(); resetLevel();
         };
     </script>
 </body>
