@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego AV - Flujo Profesional v17 (draw.io Style)</title>
+    <title>Juego AV - Flujo Profesional v21 (draw.io Style)</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -23,7 +23,6 @@
             user-select: none;
         }
         
-        /* PANTALLA DE BIENVENIDA */
         .welcome-overlay {
             position: fixed; top:0; left:0; right:0; bottom:0;
             background: rgba(0,0,0,0.9); z-index: 10000;
@@ -49,7 +48,6 @@
         }
         .welcome-modal button:hover { background: #00aa00; }
         
-        /* HEADER */
         header { 
             background:#1a1a1a; padding:8px 12px; display:flex; 
             justify-content:space-between; align-items:center; border-bottom:3px solid var(--green); 
@@ -60,23 +58,29 @@
         .container { display:flex; flex:1; overflow:hidden; }
         
         .deck { 
-            width:280px; min-width:280px; background:var(--panel); padding:10px; 
+            width:340px; min-width:340px; background:var(--panel); padding:10px; 
             overflow-y:auto; border-right:3px solid var(--border); 
         }
+        .deck h3 { margin: 8px 0 6px 0; font-size: 12px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+        .deck-section { margin-bottom: 12px; }
+        .deck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
         .card { 
-            width:100%; height:120px; background:var(--card-bg); border-radius:10px; 
-            margin-bottom:8px; display:flex; flex-direction:column; align-items:center; 
+            background:var(--card-bg); border-radius:8px; 
+            display:flex; flex-direction:column; align-items:center; 
             justify-content:center; cursor:grab; border:3px solid; transition:0.2s; 
-            text-align:center; box-shadow:0 3px 6px rgba(0,0,0,0.5); position:relative; 
+            text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.5); position:relative; 
+            padding:8px 4px; min-height:90px;
         }
-        .card:hover:not(.depleted) { transform:scale(1.02); box-shadow:0 0 15px var(--green); }
+        .card:hover:not(.depleted) { transform:scale(1.03); box-shadow:0 0 12px var(--green); z-index:5; }
         .card.depleted { opacity:0.35; cursor:not-allowed; background:#1a1a1a; filter:grayscale(80%); }
         .card .stock { 
-            position:absolute; top:6px; right:6px; background:var(--green); color:#000; 
-            border-radius:50%; width:22px; height:22px; display:flex; align-items:center; 
-            justify-content:center; font-weight:bold; font-size:11px; 
+            position:absolute; top:4px; right:4px; background:var(--green); color:#000; 
+            border-radius:50%; width:20px; height:20px; display:flex; align-items:center; 
+            justify-content:center; font-weight:bold; font-size:10px; 
         }
+        .card .card-icon { font-size:26px; pointer-events:none; }
+        .card .card-name { font-size:9px; font-weight:bold; pointer-events:none; line-height:1.1; margin-top:2px; }
         
         .workspace { 
             flex:1; background:var(--workspace); position:relative; overflow:hidden; 
@@ -116,7 +120,7 @@
         .placed .resize-handle.nw { top: -8px; left: -8px; cursor: nw-resize; }
         
         .sidebar { 
-            width:320px; min-width:320px; background:var(--panel); padding:12px; 
+            width:300px; min-width:300px; background:var(--panel); padding:12px; 
             overflow-y:auto; border-left:3px solid var(--border); 
         }
         
@@ -127,16 +131,17 @@
         button:hover { background:#00aa00; }
         button.danger { background:#660000; }
         button.danger:hover { background:#aa0000; }
-        button.help-btn { background:#886600; }
-        button.help-btn:hover { background:#aa8800; }
+        button.export-btn { background:#004466; }
+        button.export-btn:hover { background:#006688; }
+        button.hint-btn { background:#555500; }
+        button.hint-btn:hover { background:#777700; }
         
-        /* OBJETIVO BOX - Más grande y legible */
         .objective-box {
             background: #1a1a1a;
             border: 2px solid #00ff88;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
             position: relative;
             overflow: hidden;
         }
@@ -148,63 +153,53 @@
             background: linear-gradient(90deg, #00ff88, #00cc66, #00ff88);
         }
         .objective-level {
-            font-size: 13px;
+            font-size: 12px;
             color: #00ff88;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
         .objective-level .level-num {
             background: #00ff88;
             color: #000;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
         }
         .objective-text {
-            font-size: 15px;
-            line-height: 1.6;
+            font-size: 14px;
+            line-height: 1.5;
             color: #eee;
         }
-        .objective-text .highlight {
-            color: #ffaa00;
-            font-weight: bold;
+        .objective-text .highlight { color: #ffaa00; font-weight: bold; }
+        .objective-text .highlight-blue { color: #00aaff; font-weight: bold; }
+        .objective-text .highlight-green { color: #00ff88; font-weight: bold; }
+        .objective-text .highlight-red { color: #ff6666; font-weight: bold; }
+        
+        .hint-box { 
+            background:rgba(255,170,0,0.1); border:1px solid #ffaa00; 
+            border-radius:8px; padding:10px; margin:8px 0; font-size:12px; 
+            color:#ffaa00; display:none; line-height:1.5;
         }
-        .objective-text .highlight-blue {
-            color: #00aaff;
-            font-weight: bold;
-        }
-        .objective-text .highlight-green {
-            color: #00ff88;
-            font-weight: bold;
-        }
-        .objective-text .highlight-red {
-            color: #ff6666;
-            font-weight: bold;
-        }
-        .objective-requirements {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #333;
-            font-size: 11px;
-            color: #888;
-        }
-        .objective-requirements span {
+        .hint-box .hint-title { font-weight:bold; margin-bottom:4px; }
+        .hint-box span {
             background: #222;
-            padding: 2px 8px;
+            padding: 2px 7px;
             border-radius: 4px;
-            margin: 2px;
+            margin: 1px;
             display: inline-block;
             border: 1px solid #444;
+            font-size:10px;
+            color:#ccc;
         }
         
         .failure { 
@@ -232,28 +227,6 @@
         }
         .selected-connection { animation: pulse 0.8s ease-in-out infinite; }
         
-        .rules-modal { 
-            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); 
-            background:#1a1a1a; border:3px solid #ffaa00; border-radius:16px; 
-            padding:24px; z-index:9999; display:none; max-width:550px; width:90%; 
-            max-height:80vh; overflow-y:auto; box-shadow:0 0 40px rgba(0,0,0,0.9); 
-        }
-        .rules-modal h3 { color:#ffaa00; margin-top:0; }
-        .rules-modal .close-btn { 
-            position:absolute; top:10px; right:14px; cursor:pointer; 
-            font-size:22px; color:#888; background:none; border:none; 
-        }
-        .rules-modal .close-btn:hover { color:#fff; }
-        .rules-overlay { 
-            position:fixed; top:0; left:0; right:0; bottom:0; 
-            background:rgba(0,0,0,0.7); z-index:9998; display:none; 
-        }
-        .hint-box { 
-            background:rgba(255,170,0,0.1); border:1px solid #ffaa00; 
-            border-radius:8px; padding:8px; margin:6px 0; font-size:11px; 
-            color:#ffaa00; display:none; 
-        }
-        
         .zoom-controls {
             position: absolute; bottom: 16px; right: 16px; z-index: 50;
             display: flex; gap: 6px; background: rgba(0,0,0,0.8);
@@ -275,7 +248,6 @@
         }
         .placed.resizing .size-info { opacity: 1; }
 
-        /* MODAL DE RESULTADOS FINALES */
         .results-overlay {
             position: fixed; top:0; left:0; right:0; bottom:0;
             background: rgba(0,0,0,0.9); z-index: 10000;
@@ -297,10 +269,7 @@
             background: #222; color: var(--green); padding: 10px;
             border-bottom: 2px solid var(--green); font-size: 14px;
         }
-        .results-table td {
-            padding: 10px; border-bottom: 1px solid #333; text-align: center;
-        }
-        .results-table tr:hover td { background: #1a1a1a; }
+        .results-table td { padding: 10px; border-bottom: 1px solid #333; text-align: center; }
         .results-total {
             font-size: 22px; color: var(--green); margin: 16px 0;
             padding: 12px; border: 2px solid var(--green); border-radius: 10px;
@@ -311,12 +280,28 @@
             padding: 12px 30px; border-radius: 10px; cursor: pointer;
             font-weight: bold; font-size: 16px; margin: 4px;
         }
-        .results-modal button:hover { background: #00aa00; }
         .results-stars { font-size: 32px; margin: 8px 0; }
         .badge-level { 
             display: inline-block; padding: 3px 10px; border-radius: 4px;
             font-size: 11px; font-weight: bold; margin: 2px;
         }
+        
+        .loading-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.8); z-index: 20000;
+            display: none; align-items: center; justify-content: center;
+            flex-direction: column;
+        }
+        .loading-overlay.active { display: flex; }
+        .loading-spinner {
+            width: 50px; height: 50px;
+            border: 4px solid #333;
+            border-top: 4px solid var(--green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text { color: var(--green); margin-top: 16px; font-size: 14px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         @keyframes pulse { 
             0%,100% { box-shadow:0 0 0 6px #ffff00, 0 0 20px #ffff00; } 
@@ -325,7 +310,6 @@
     </style>
 </head>
 <body>
-    <!-- PANTALLA DE BIENVENIDA -->
     <div class="welcome-overlay" id="welcome-overlay">
         <div class="welcome-modal">
             <div style="font-size:48px;">🎬</div>
@@ -337,16 +321,13 @@
         </div>
     </div>
 
-    <!-- HEADER PRINCIPAL -->
     <header>
         <div style="display:flex;align-items:center;gap:8px;">
             <h2 style="margin:0;font-size:16px;">Nivel <span id="level">1</span>/5</h2>
             <span id="difficulty-badge" class="difficulty-badge" style="background:#00ff88;color:#000;">FÁCIL</span>
         </div>
         <div class="team-name-header" id="team-name-header">Equipo: ---</div>
-        <div style="font-size:13px;">
-            ⭐ <span id="score">0</span> | ⏱️ <span id="time">0</span>s | 🆘 <span id="helps-count">3</span>
-        </div>
+        <div style="font-size:13px;">⭐ <span id="score">0</span> | ⏱️ <span id="time">0</span>s</div>
         <div style="display:flex;gap:6px;">
             <button onclick="checkSolution()" style="width:auto;font-size:12px;">✅ Verificar</button>
             <button onclick="nextLevel()" style="width:auto;font-size:12px;">→ Siguiente</button>
@@ -354,8 +335,8 @@
     </header>
 
     <div class="container">
-        <div class="deck">
-            <h3 style="margin:0 0 8px 0;font-size:14px;">📦 Inventario</h3>
+        <div class="deck" id="deck-container">
+            <h3 style="margin:0 0 10px 0;font-size:14px;">📦 Inventario</h3>
             <div id="deck"></div>
         </div>
 
@@ -376,7 +357,7 @@
             <h3 style="margin:0 0 8px 0;font-size:14px;">🎯 Objetivo del Nivel</h3>
             <div id="objective" class="objective-box"></div>
 
-            <button onclick="requestHelp()" class="help-btn">🆘 Pedir Ayuda (<span id="help-remaining">3</span>)</button>
+            <button onclick="showLevelHint()" class="hint-btn">💡 Mostrar equipos necesarios</button>
             <div class="hint-box" id="hint-box"></div>
 
             <h3 style="margin:8px 0 4px 0;font-size:14px;">⚠️ Diagnóstico</h3>
@@ -387,75 +368,71 @@
 
             <button onclick="resetLevel()">🔄 Reiniciar Nivel</button>
             <button onclick="clearAllConnections()" class="danger">🔌 Desconectar Todo</button>
-            <button onclick="autoArrange()" style="background:#004466;" title="Organizar tarjetas automáticamente">📐 Auto-Organizar</button>
+            <button onclick="exportDiagram()" class="export-btn">📸 Exportar Diagrama (PNG 16:9)</button>
         </div>
     </div>
 
-    <!-- MODAL DE RESULTADOS FINALES -->
-    <div class="results-overlay" id="results-overlay">
-        <div class="results-modal" id="results-modal"></div>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Exportando diagrama...</div>
     </div>
 
-    <div class="rules-overlay" id="rules-overlay"></div>
-    <div class="rules-modal" id="rules-modal">
-        <button class="close-btn" onclick="closeRulesModal()">✕</button>
-        <h3>📖 Reglas de Conexión AV</h3>
-        <div id="rules-content"></div>
+    <div class="results-overlay" id="results-overlay">
+        <div class="results-modal" id="results-modal"></div>
     </div>
 
     <div id="context-menu" class="context-menu">
         <div onclick="deleteSelected()" class="danger-item">🗑️ Eliminar</div>
         <div onclick="disconnectSelected()">🔌 Desconectar</div>
         <div onclick="resetCardSize()">📏 Tamaño normal</div>
-        <div onclick="exportDiagram()">📸 Exportar PNG</div>
+        <div onclick="exportDiagram()">📸 Exportar PNG 16:9</div>
     </div>
 
     <script>
-        // ============ DATOS ============
         const cardsDB = [
-            {id:"notebook", name:"NOTEBOOK", type:"hardware", color:"#0066ff", icon:"💻"},
-            {id:"ptz", name:"CÁMARA PTZ", type:"camera", color:"#00cc66", icon:"📹"},
-            {id:"cam", name:"CÁMARA", type:"camera", color:"#00cc66", icon:"📹"},
-            {id:"mixer", name:"MIXER DE VIDEO", type:"hardware", color:"#4444ff", icon:"🎛️"},
-            {id:"led", name:"PANTALLA DE LED", type:"display", color:"#00ffff", icon:"🖥️"},
-            {id:"tv", name:"TELEVISOR", type:"display", color:"#00dddd", icon:"📺"},
-            {id:"proyector", name:"PROYECTOR", type:"display", color:"#00cccc", icon:"📽️"},
-            {id:"sending", name:"SENDING CARD", type:"hardware", color:"#00aaff", icon:"📤"},
-            {id:"resolume", name:"RESOLUME", type:"software", color:"#9900ff", icon:"🖥️"},
-            {id:"vmix", name:"VMIX", type:"software", color:"#9900ff", icon:"🖥️"},
-            {id:"server", name:"SERVIDOR", type:"hardware", color:"#ff2222", icon:"🖥️"},
-            {id:"ndi", name:"ENVIO NDI", type:"protocol", color:"#ff8800", icon:"🌐"},
-            {id:"srt", name:"ENVIO SRT", type:"protocol", color:"#ff8800", icon:"🌐"},
-            {id:"rtmp", name:"ENVIO RTMP", type:"protocol", color:"#ff5500", icon:"📡"},
-            {id:"youtube", name:"YOUTUBE", type:"destination", color:"#ff0000", icon:"▶️"},
-            {id:"fibra", name:"FIBRA ÓPTICA", type:"cable", color:"#ffaa00", icon:"🔵"},
-            {id:"hdmi20", name:"HDMI 20m", type:"cable", color:"#ff6600", icon:"📺"},
-            {id:"hdmi10", name:"HDMI 10m", type:"cable", color:"#ff6600", icon:"📺"},
-            {id:"hdmi5", name:"HDMI 5m", type:"cable", color:"#ff6600", icon:"📺"},
-            {id:"sdi100", name:"SDI 100m", type:"cable", color:"#ff3300", icon:"🔴"},
-            {id:"sdi50", name:"SDI 50m", type:"cable", color:"#ff3300", icon:"🔴"},
-            {id:"sdi15", name:"SDI 15m", type:"cable", color:"#ff3300", icon:"🔴"},
-            {id:"red50", name:"RED 50m", type:"cable", color:"#4488ff", icon:"🌐"},
-            {id:"red25", name:"RED 25m", type:"cable", color:"#4488ff", icon:"🌐"},
-            {id:"conv", name:"CONVERSOR HDMI-SDI", type:"converter", color:"#ffaa00", icon:"🔄"},
-            {id:"splitter", name:"SPLITTER HDMI", type:"converter", color:"#ffcc00", icon:"🔀"},
-            {id:"switch", name:"SWITCHER DE RED", type:"network", color:"#00aaff", icon:"🔀"},
-            {id:"capture", name:"CAPTURADORA HDMI", type:"capture", color:"#00ccaa", icon:"📥"},
-            {id:"encoder", name:"ENCODER", type:"hardware", color:"#aa00aa", icon:"📤"},
-            {id:"powerpoint", name:"POWER POINT", type:"source", color:"#ff6600", icon:"📊"}
+            {id:"led", name:"PANTALLA LED", type:"display", color:"#00ffff", icon:"🖥️", section:"Pantallas"},
+            {id:"tv", name:"TELEVISOR", type:"display", color:"#00dddd", icon:"📺", section:"Pantallas"},
+            {id:"proyector", name:"PROYECTOR", type:"display", color:"#00cccc", icon:"📽️", section:"Pantallas"},
+            {id:"youtube", name:"YOUTUBE", type:"destination", color:"#ff0000", icon:"▶️", section:"Pantallas"},
+            {id:"notebook", name:"NOTEBOOK", type:"hardware", color:"#0066ff", icon:"💻", section:"PC / Software"},
+            {id:"server", name:"SERVIDOR", type:"hardware", color:"#ff2222", icon:"🖥️", section:"PC / Software"},
+            {id:"vmix", name:"VMIX", type:"software", color:"#9900ff", icon:"🖥️", section:"PC / Software"},
+            {id:"resolume", name:"RESOLUME", type:"software", color:"#9900ff", icon:"🖥️", section:"PC / Software"},
+            {id:"powerpoint", name:"POWER POINT", type:"source", color:"#ff6600", icon:"📊", section:"PC / Software"},
+            {id:"mixer", name:"MIXER DE VIDEO", type:"hardware", color:"#4444ff", icon:"🎛️", section:"Hardware"},
+            {id:"sending", name:"SENDING CARD", type:"hardware", color:"#00aaff", icon:"📤", section:"Hardware"},
+            {id:"encoder", name:"ENCODER", type:"hardware", color:"#aa00aa", icon:"📤", section:"Hardware"},
+            {id:"capture", name:"CAPTURADORA HDMI", type:"capture", color:"#00ccaa", icon:"📥", section:"Hardware"},
+            {id:"conv", name:"CONVERSOR HDMI-SDI", type:"converter", color:"#ffaa00", icon:"🔄", section:"Hardware"},
+            {id:"splitter", name:"SPLITTER HDMI", type:"converter", color:"#ffcc00", icon:"🔀", section:"Hardware"},
+            {id:"switch", name:"SWITCHER DE RED", type:"network", color:"#00aaff", icon:"🔀", section:"Hardware"},
+            {id:"cam", name:"CÁMARA", type:"camera", color:"#00cc66", icon:"📹", section:"Cámaras"},
+            {id:"ptz", name:"CÁMARA PTZ", type:"camera", color:"#00cc66", icon:"📹", section:"Cámaras"},
+            {id:"ndi", name:"ENVIO NDI", type:"protocol", color:"#ff8800", icon:"🌐", section:"Protocolos"},
+            {id:"srt", name:"ENVIO SRT", type:"protocol", color:"#ff8800", icon:"🌐", section:"Protocolos"},
+            {id:"rtmp", name:"ENVIO RTMP", type:"protocol", color:"#ff5500", icon:"📡", section:"Protocolos"},
+            {id:"hdmi5", name:"HDMI 5m", type:"cable", color:"#ff6600", icon:"📺", section:"Cables"},
+            {id:"hdmi10", name:"HDMI 10m", type:"cable", color:"#ff6600", icon:"📺", section:"Cables"},
+            {id:"hdmi20", name:"HDMI 20m", type:"cable", color:"#ff6600", icon:"📺", section:"Cables"},
+            {id:"sdi15", name:"SDI 15m", type:"cable", color:"#ff3300", icon:"🔴", section:"Cables"},
+            {id:"sdi50", name:"SDI 50m", type:"cable", color:"#ff3300", icon:"🔴", section:"Cables"},
+            {id:"sdi100", name:"SDI 100m", type:"cable", color:"#ff3300", icon:"🔴", section:"Cables"},
+            {id:"red25", name:"RED 25m", type:"cable", color:"#4488ff", icon:"🌐", section:"Cables"},
+            {id:"red50", name:"RED 50m", type:"cable", color:"#4488ff", icon:"🌐", section:"Cables"},
+            {id:"fibra", name:"FIBRA ÓPTICA", type:"cable", color:"#ffaa00", icon:"🔵", section:"Cables"},
         ];
 
-        // ============ ESTADO GLOBAL ============
         let teamName = "";
         let currentLevel = 1, score = 0, time = 0, timer;
         let placed = [], connections = [], selected = null, contextTarget = null;
         let cardStock = {};
-        let helpCount = 3;
         let zoomLevel = 1, panX = 0, panY = 0;
         let isPanning = false, panStart = {x:0,y:0};
         let levelHistory = [];
+        let levelCompleted = false;
+        let timerStopped = false;
+        let hintRevealed = false;
 
-        // TIPOS
         const cameraTypes = ['camera'];
         const hardwareTypes = ['hardware', 'mixer'];
         const softwareTypes = ['software'];
@@ -475,109 +452,54 @@
             { from: 'rtmp', to: ['youtube'] },
         ];
 
-        // OBJETIVOS CON DESCRIPCIONES MEJORADAS
         const levels = [
             { 
-                desc: "Enviar un PowerPoint a un TV",
                 descHTML: `
                     <div class="objective-level"><span class="level-num">1</span> NIVEL BÁSICO</div>
                     <div class="objective-text">
                         Enviar una presentación de <span class="highlight">PowerPoint</span> a un <span class="highlight-green">Televisor</span>.
-                    </div>
-                    <div class="objective-requirements">
-                        Equipos necesarios: <span>PowerPoint</span> <span>Notebook</span> <span>TV</span> <span>HDMI</span>
                     </div>`,
-                required: ["powerpoint","notebook","tv"], 
-                difficulty:"FÁCIL", stock:5, 
-                hint:"PowerPoint se conecta directo al Notebook. Del Notebook al TV necesitas un cable HDMI." 
+                required: ["powerpoint","notebook","tv"], difficulty:"FÁCIL", stock:5,
+                hint: "Equipos necesarios: <span>PowerPoint</span> <span>Notebook</span> <span>TV</span> <span>HDMI</span><br><br>💡 PowerPoint se conecta directo al Notebook. Del Notebook al TV necesitas un cable HDMI."
             },
             { 
-                desc: "Hacer una grabación a dos cámaras y ver la mezcla en un proyector",
                 descHTML: `
                     <div class="objective-level"><span class="level-num">2</span> NIVEL BÁSICO</div>
                     <div class="objective-text">
-                        Conectar <span class="highlight">2 Cámaras</span> a un <span class="highlight-blue">Mixer de Video</span> y visualizar la mezcla en un <span class="highlight-green">Proyector</span>.
-                    </div>
-                    <div class="objective-requirements">
-                        Equipos necesarios: <span>2× Cámara</span> <span>Mixer</span> <span>Proyector</span> <span>HDMI/SDI</span>
+                        Conectar <span class="highlight">2 Cámaras</span> a un <span class="highlight-blue">Mixer</span> y visualizar la mezcla en un <span class="highlight-green">Proyector</span>.
                     </div>`,
-                required: ["cam","cam","mixer","proyector"], 
-                difficulty:"FÁCIL", stock:5, 
-                hint:"Las cámaras salen por HDMI o SDI al Mixer. Del Mixer al Proyector con HDMI." 
+                required: ["cam","cam","mixer","proyector"], difficulty:"FÁCIL", stock:5,
+                hint: "Equipos necesarios: <span>2× Cámara</span> <span>Mixer</span> <span>Proyector</span> <span>HDMI/SDI</span><br><br>💡 Las cámaras salen por HDMI o SDI al Mixer. Del Mixer al Proyector con HDMI."
             },
             { 
-                desc: "Hacer un CCTV con 3 cámaras, dos PTZ y una presentación en PowerPoint, componer en VMIX y enviar a una pantalla de LED",
                 descHTML: `
                     <div class="objective-level"><span class="level-num">3</span> NIVEL MEDIO</div>
                     <div class="objective-text">
-                        Montar un sistema <span class="highlight-blue">CCTV</span> con <span class="highlight">3 Cámaras</span> comunes y <span class="highlight">2 Cámaras PTZ</span>. Agregar una presentación de <span class="highlight">PowerPoint</span>. Componer todo en <span class="highlight-blue">VMIX</span> y enviar a una <span class="highlight-green">Pantalla de LED</span>.
-                    </div>
-                    <div class="objective-requirements">
-                        Equipos necesarios: <span>3× Cámara</span> <span>2× PTZ</span> <span>PowerPoint</span> <span>Switcher</span> <span>NDI</span> <span>VMIX</span> <span>Sending Card</span> <span>LED</span> <span>Cable Red</span>
+                        Sistema <span class="highlight-blue">CCTV</span> con <span class="highlight">3 Cámaras</span> y <span class="highlight">2 PTZ</span>. Agregar <span class="highlight">PowerPoint</span>. Componer en <span class="highlight-blue">VMIX</span> y enviar a <span class="highlight-green">LED</span>.
                     </div>`,
-                required: ["cam","cam","cam","ptz","ptz","powerpoint","switch","ndi","vmix","sending","led"], 
-                difficulty:"MEDIO", stock:5, 
-                hint:"PTZ usa NDI con Switcher (sin capturadora). Cámaras comunes con SDI/HDMI. PowerPoint al Server/Notebook directo. Sending Card → Cable Red → LED." 
+                required: ["cam","cam","cam","ptz","ptz","powerpoint","switch","ndi","vmix","sending","led"], difficulty:"MEDIO", stock:5,
+                hint: "Equipos necesarios: <span>3× Cámara</span> <span>2× PTZ</span> <span>PowerPoint</span> <span>Switcher</span> <span>NDI</span> <span>VMIX</span> <span>Sending</span> <span>LED</span> <span>Cable Red</span><br><br>💡 PTZ usa NDI con Switcher (sin capturadora). Cámaras comunes con SDI/HDMI. PowerPoint al Server/Notebook directo. Sending Card → Cable Red → LED."
             },
             { 
-                desc: "Recibir 2 cámaras, 2 PTZ, mezclar, componer con un PowerPoint y subir a YouTube",
                 descHTML: `
                     <div class="objective-level"><span class="level-num">4</span> NIVEL MEDIO</div>
                     <div class="objective-text">
-                        Recibir <span class="highlight">2 Cámaras</span> y <span class="highlight">2 Cámaras PTZ</span>. Mezclar y componer con <span class="highlight">PowerPoint</span> en <span class="highlight-blue">VMIX</span>. Transmitir en vivo a <span class="highlight-red">YouTube</span>.
-                    </div>
-                    <div class="objective-requirements">
-                        Equipos necesarios: <span>2× Cámara</span> <span>2× PTZ</span> <span>PowerPoint</span> <span>Switcher</span> <span>VMIX</span> <span>RTMP</span> <span>YouTube</span>
+                        Recibir <span class="highlight">2 Cámaras</span> y <span class="highlight">2 PTZ</span>. Mezclar con <span class="highlight">PowerPoint</span> en <span class="highlight-blue">VMIX</span>. Transmitir a <span class="highlight-red">YouTube</span>.
                     </div>`,
-                required: ["cam","cam","ptz","ptz","powerpoint","switch","vmix","rtmp","youtube"], 
-                difficulty:"MEDIO", stock:3, 
-                hint:"PTZ con NDI + Switcher. PowerPoint al Server/Notebook directo. VMIX → RTMP → YouTube (directo, sin cables)." 
+                required: ["cam","cam","ptz","ptz","powerpoint","switch","vmix","rtmp","youtube"], difficulty:"MEDIO", stock:3,
+                hint: "Equipos necesarios: <span>2× Cámara</span> <span>2× PTZ</span> <span>PowerPoint</span> <span>Switcher</span> <span>VMIX</span> <span>RTMP</span> <span>YouTube</span><br><br>💡 PTZ con NDI + Switcher. PowerPoint al Server/Notebook directo. VMIX → RTMP → YouTube (directo, sin cables)."
             },
             { 
-                desc: "3 PTZ en remoto, PowerPoint local pero lejos, composición para stream y CCTV en pantalla de LED",
                 descHTML: `
                     <div class="objective-level"><span class="level-num">5</span> NIVEL DIFÍCIL</div>
                     <div class="objective-text">
-                        Controlar <span class="highlight">3 Cámaras PTZ remotas</span>. Tener <span class="highlight">PowerPoint</span> en una computadora local pero alejada. Componer para <span class="highlight-red">streaming en vivo</span> y también para un sistema <span class="highlight-blue">CCTV</span> en <span class="highlight-green">Pantalla de LED</span>.
-                    </div>
-                    <div class="objective-requirements">
-                        Equipos necesarios: <span>3× PTZ</span> <span>PowerPoint</span> <span>Servidor</span> <span>Switcher</span> <span>NDI</span> <span>VMIX</span> <span>RTMP</span> <span>YouTube</span> <span>Sending Card</span> <span>LED</span> <span>Cable Red</span>
+                        <span class="highlight">3 PTZ remotas</span>. <span class="highlight">PowerPoint</span> local alejado. Componer para <span class="highlight-red">streaming</span> y <span class="highlight-blue">CCTV</span> en <span class="highlight-green">LED</span>.
                     </div>`,
-                required: ["ptz","ptz","ptz","powerpoint","server","switch","ndi","vmix","rtmp","youtube","sending","led"], 
-                difficulty:"DIFÍCIL", stock:3, 
-                hint:"PTZ remotas → NDI → Switcher con cables de red. PowerPoint → Server directo. VMIX → RTMP → YouTube. VMIX → Sending → Cable Red → LED para CCTV." 
+                required: ["ptz","ptz","ptz","powerpoint","server","switch","ndi","vmix","rtmp","youtube","sending","led"], difficulty:"DIFÍCIL", stock:3,
+                hint: "Equipos necesarios: <span>3× PTZ</span> <span>PowerPoint</span> <span>Server</span> <span>Switcher</span> <span>NDI</span> <span>VMIX</span> <span>RTMP</span> <span>YouTube</span> <span>Sending</span> <span>LED</span> <span>Cable Red</span><br><br>💡 PTZ remotas → NDI → Switcher con cables de red. PowerPoint → Server directo. VMIX → RTMP → YouTube. VMIX → Sending → Cable Red → LED para CCTV."
             }
         ];
 
-        const allRulesHTML = `
-            <div style="line-height:1.8;font-size:13px;">
-                <p>🟢 <b>CONEXIONES DIRECTAS (sin cable):</b></p>
-                <p style="margin-left:16px;">• PowerPoint → Notebook / Servidor</p>
-                <p style="margin-left:16px;">• VMIX / Resolume / Server / Encoder → RTMP → YouTube</p>
-                
-                <p style="margin-top:12px;">📹 <b>CÁMARAS:</b></p>
-                <p style="margin-left:16px;">• <b>Cámara común (CAM):</b> Sale por <b>HDMI o SDI</b> únicamente.</p>
-                <p style="margin-left:16px;">• <b>Cámara PTZ:</b> Sale por <b>NDI o SRT</b> (cable de red + Switcher).</p>
-                <p style="margin-left:16px;">• <b>PTZ con cable de red NO necesita Capturadora.</b></p>
-                
-                <p style="margin-top:12px;">🎛️ <b>MIXER:</b></p>
-                <p style="margin-left:16px;">• Entrada: Acepta HDMI/SDI directo de cámaras (sin Capturadora).</p>
-                <p style="margin-left:16px;">• Salida a Notebook/Server/VMIX/Resolume: <b>Requiere Capturadora.</b></p>
-                
-                <p style="margin-top:12px;">🔵 <b>CABLEADO GENERAL:</b></p>
-                <p style="margin-left:16px;">• Hardware/Software se interconectan con cables o protocolos.</p>
-                <p style="margin-left:16px;">• <b>TV y Proyector SOLO aceptan HDMI.</b></p>
-                <p style="margin-left:16px;">• Los cables se pueden reutilizar sin límite.</p>
-                
-                <p style="margin-top:12px;">🔴 <b>PROTOCOLOS DE RED (NDI/SRT):</b></p>
-                <p style="margin-left:16px;">• Requieren Switcher de Red.</p>
-                
-                <p style="margin-top:12px;">🟡 <b>PANTALLA LED:</b></p>
-                <p style="margin-left:16px;">• Sending Card → Cable de Red → LED.</p>
-            </div>
-        `;
-
-        // ============ FUNCIONES ============
         function startGame() {
             const input = document.getElementById('team-name-input');
             const name = input.value.trim();
@@ -610,8 +532,13 @@
         }
 
         function startTimer() {
-            time=0; clearInterval(timer);
+            time=0; timerStopped=false;
+            clearInterval(timer);
             timer=setInterval(()=>{time++;document.getElementById('time').textContent=time;},1000);
+        }
+
+        function stopTimer() {
+            if(!timerStopped){clearInterval(timer);timerStopped=true;}
         }
 
         function initStock() {
@@ -620,51 +547,51 @@
             cardsDB.forEach(c=>cardStock[c.id]=amt);
         }
 
-        function updateHelpDisplay() {
-            document.getElementById('helps-count').textContent=helpCount;
-            document.getElementById('help-remaining').textContent=helpCount;
+        function showLevelHint() {
+            const lvl = levels[currentLevel-1];
+            const hintBox = document.getElementById('hint-box');
+            hintBox.innerHTML = '<div class="hint-title">📋 ' + lvl.hint.split('💡')[0] + '</div>' + (lvl.hint.includes('💡') ? '<div style="margin-top:6px;">' + lvl.hint.split('💡')[1] + '</div>' : '');
+            hintBox.style.display = 'block';
+            hintRevealed = true;
         }
 
         function renderDeck() {
             const deck=document.getElementById('deck');
             deck.innerHTML='';
-            cardsDB.forEach(card=>{
-                const div=document.createElement('div');
-                div.className='card';
-                if(cardStock[card.id]<=0) div.classList.add('depleted');
-                div.style.borderColor=card.color;
-                div.draggable=cardStock[card.id]>0;
-                div.innerHTML=`<span class="stock">${cardStock[card.id]}</span><div style="font-size:34px">${card.icon}</div><strong style="font-size:11px;">${card.name}</strong>`;
-                div.ondragstart=(e)=>{
-                    if(cardStock[card.id]<=0){e.preventDefault();return;}
-                    e.dataTransfer.setData('text/plain',card.id);
-                    window.dragged=card;
-                };
-                deck.appendChild(div);
+            const sections = {};
+            cardsDB.forEach(card => {
+                if(!sections[card.section]) sections[card.section] = [];
+                sections[card.section].push(card);
             });
-            updateHelpDisplay();
+            const sectionOrder = ['PC / Software', 'Cámaras', 'Hardware', 'Pantallas', 'Protocolos', 'Cables'];
+            sectionOrder.forEach(sectionName => {
+                if(!sections[sectionName] || sections[sectionName].length === 0) return;
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'deck-section';
+                sectionDiv.innerHTML = `<h3>${sectionName}</h3>`;
+                const grid = document.createElement('div');
+                grid.className = 'deck-grid';
+                sections[sectionName].forEach(card => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    if(cardStock[card.id]<=0) div.classList.add('depleted');
+                    div.style.borderColor = card.color;
+                    div.draggable = cardStock[card.id]>0;
+                    div.innerHTML = `<span class="stock">${cardStock[card.id]}</span><div class="card-icon">${card.icon}</div><div class="card-name">${card.name}</div>`;
+                    div.ondragstart = (e) => {
+                        if(cardStock[card.id]<=0){e.preventDefault();return;}
+                        e.dataTransfer.setData('text/plain',card.id);
+                        window.dragged=card;
+                    };
+                    grid.appendChild(div);
+                });
+                sectionDiv.appendChild(grid);
+                deck.appendChild(sectionDiv);
+            });
         }
 
         function renderObjective() {
-            const lvl = levels[currentLevel-1];
-            document.getElementById('objective').innerHTML = lvl.descHTML;
-        }
-
-        function requestHelp() {
-            if(helpCount<=0){showTemporaryMessage("❌ No te quedan ayudas");return;}
-            helpCount--; updateHelpDisplay();
-            score=Math.max(0,score-50); document.getElementById('score').textContent=score;
-            document.getElementById('rules-content').innerHTML=allRulesHTML;
-            document.getElementById('rules-modal').style.display='block';
-            document.getElementById('rules-overlay').style.display='block';
-            document.getElementById('hint-box').style.display='block';
-            document.getElementById('hint-box').textContent='💡 '+(levels[currentLevel-1].hint || 'Organiza las tarjetas y conéctalas correctamente.');
-            showTemporaryMessage("📖 Reglas reveladas (-50 puntos)");
-        }
-
-        function closeRulesModal() {
-            document.getElementById('rules-modal').style.display='none';
-            document.getElementById('rules-overlay').style.display='none';
+            document.getElementById('objective').innerHTML = levels[currentLevel-1].descHTML;
         }
 
         function initCanvas() {
@@ -855,36 +782,30 @@
         function validateConnection(from, to) {
             if(from.id===to.id) return{valid:false,message:"No se puede conectar una tarjeta consigo misma"};
             const fid=from.id,tid=to.id,ftype=from.type,ttype=to.type;
-            
             if(isDirectConnection(fid,tid)) return{valid:true};
             if(fid==='powerpoint'&&!['notebook','server'].includes(tid)) return{valid:false,message:"PowerPoint solo conecta directo a Notebook o Servidor"};
             if(tid==='powerpoint'&&!['notebook','server'].includes(fid)) return{valid:false,message:"PowerPoint solo conecta directo a Notebook o Servidor"};
             if((fid==='rtmp'&&tid==='youtube')||(tid==='rtmp'&&fid==='youtube')) return{valid:true};
-            
             if(fid==='cam' && !hdmiCables.includes(tid) && !sdiCables.includes(tid) && tid!=='conv' && tid!=='capture' && tid!=='mixer')
                 return{valid:false,message:"Cámara común solo sale por HDMI o SDI"};
             if(tid==='cam' && !hdmiCables.includes(fid) && !sdiCables.includes(fid) && fid!=='conv' && fid!=='capture' && fid!=='mixer')
                 return{valid:false,message:"Cámara común solo recibe por HDMI o SDI"};
-            
             if(fid==='ptz' && !networkProtocols.includes(tid) && !networkCables.includes(tid) && tid!=='switch')
                 return{valid:false,message:"Cámara PTZ solo sale por NDI o SRT (con cable de red + Switcher)"};
             if(tid==='ptz' && !networkProtocols.includes(fid) && !networkCables.includes(fid) && fid!=='switch')
                 return{valid:false,message:"Cámara PTZ solo recibe por NDI o SRT (con cable de red + Switcher)"};
             if((fid==='ptz'||tid==='ptz') && (networkProtocols.includes(fid)||networkProtocols.includes(tid)||networkCables.includes(fid)||networkCables.includes(tid)||fid==='switch'||tid==='switch'))
                 return{valid:true};
-            
             if(fid==='mixer' && (hardwareTypes.includes(ttype)||softwareTypes.includes(ttype)) && tid!=='capture')
                 return{valid:false,message:"Mixer necesita CAPTURADORA para salir a Notebook/Server/VMIX/Resolume"};
             if(tid==='mixer' && (hardwareTypes.includes(ftype)||softwareTypes.includes(ftype)) && fid!=='capture')
                 return{valid:false,message:"Mixer necesita CAPTURADORA para recibir de Notebook/Server/VMIX/Resolume"};
             if(fid==='mixer' && (allCables.includes(tid)||tid==='conv'||tid==='splitter'||cameraTypes.includes(ttype))) return{valid:true};
             if(tid==='mixer' && (allCables.includes(fid)||fid==='conv'||fid==='splitter'||cameraTypes.includes(ftype))) return{valid:true};
-            
-            if((tid==='tv'||tid==='proyector') && !hdmiCables.includes(fid) && !['conv','splitter'].includes(fid) && !allCables.includes(fid))
+            if((tid==='tv'||tid==='proyector') && !hdmiCables.includes(fid) && !['conv','splitter'].includes(fid))
                 return{valid:false,message:"TV y Proyector SOLO aceptan entrada HDMI"};
-            if((fid==='tv'||fid==='proyector') && !hdmiCables.includes(tid) && !['conv','splitter'].includes(tid) && !allCables.includes(tid))
+            if((fid==='tv'||fid==='proyector') && !hdmiCables.includes(tid) && !['conv','splitter'].includes(tid))
                 return{valid:false,message:"TV y Proyector SOLO aceptan entrada HDMI"};
-            
             if(fid==='sending'&&tid==='led') return{valid:false,message:"Sending Card necesita CABLE DE RED para conectar a LED"};
             if(tid==='sending'&&fid==='led') return{valid:false,message:"LED necesita CABLE DE RED desde Sending Card"};
             if(networkCables.includes(fid)&&tid==='led') return{valid:true};
@@ -895,20 +816,18 @@
                 return{valid:false,message:"Cables de red solo para Sending↔LED o NDI/SRT con Switcher"};
             if(networkCables.includes(tid)&&!['sending','led','switch','ndi','srt','notebook','server','vmix','resolume','ptz','cam'].includes(fid))
                 return{valid:false,message:"Cables de red solo para Sending↔LED o NDI/SRT con Switcher"};
-            
             if(networkProtocols.includes(fid)&&!placed.some(p=>p.id==='switch')&&tid!=='switch')
                 return{valid:false,message:`${from.name} requiere SWITCHER DE RED`};
             if(networkProtocols.includes(tid)&&!placed.some(p=>p.id==='switch')&&fid!=='switch')
                 return{valid:false,message:`${to.name} requiere SWITCHER DE RED`};
             if(fid==='switch'||tid==='switch') return{valid:true};
-            
             if((hardwareTypes.includes(ftype)||softwareTypes.includes(ftype))&&(hardwareTypes.includes(ttype)||softwareTypes.includes(ttype)))
                 return{valid:false,message:"Hardware/Software se conectan con cables o protocolos"};
             if(fid==='capture'||tid==='capture') return{valid:true};
             if(['cable','converter','network','protocol'].includes(ftype)||['cable','converter','network','protocol'].includes(ttype))
                 return{valid:true};
             if(displayTypes.includes(ftype)||displayTypes.includes(ttype)) return{valid:true};
-            return{valid:false,message:"Conexión no permitida. Pide ayuda (🆘)."};
+            return{valid:false,message:"Conexión no permitida."};
         }
 
         function createConnection(fromEl, toEl, fromCard, toCard) {
@@ -942,10 +861,16 @@
                 const canvas=document.getElementById('canvas');
                 const cr=canvas.getBoundingClientRect();
                 const fr=fe.getBoundingClientRect(), tr=te.getBoundingClientRect();
-                const cx1=fr.left+fr.width/2-cr.left, cy1=fr.top+fr.height/2-cr.top;
-                const cx2=tr.left+tr.width/2-cr.left, cy2=tr.top+tr.height/2-cr.top;
+                
+                const z = zoomLevel;
+                const cx1=(fr.left+fr.width/2-cr.left)/z;
+                const cy1=(fr.top+fr.height/2-cr.top)/z;
+                const cx2=(tr.left+tr.width/2-cr.left)/z;
+                const cy2=(tr.top+tr.height/2-cr.top)/z;
+                
                 const ang=Math.atan2(cy2-cy1,cx2-cx1);
-                const fEdge=getEdgePoint(fr,cr,ang), tEdge=getEdgePoint(tr,cr,ang+Math.PI);
+                const fEdge=getEdgePoint(fr,cr,ang,z);
+                const tEdge=getEdgePoint(tr,cr,ang+Math.PI,z);
                 
                 const isDirect=isDirectConnection(conn.from,conn.to);
                 const isNet=networkCables.includes(conn.from)||networkCables.includes(conn.to);
@@ -966,9 +891,11 @@
             });
         }
 
-        function getEdgePoint(rect, canvasRect, angle) {
-            const cx=rect.left+rect.width/2-canvasRect.left, cy=rect.top+rect.height/2-canvasRect.top;
-            const hw=rect.width/2+4, hh=rect.height/2+4;
+        function getEdgePoint(rect, canvasRect, angle, zoom) {
+            const cx=(rect.left+rect.width/2-canvasRect.left)/zoom;
+            const cy=(rect.top+rect.height/2-canvasRect.top)/zoom;
+            const hw=(rect.width/2+4)/zoom;
+            const hh=(rect.height/2+4)/zoom;
             const cos=Math.cos(angle), sin=Math.sin(angle);
             let t=Math.abs(cos*hh)>Math.abs(sin*hw)?hw/Math.abs(cos):hh/Math.abs(sin);
             return{x:cx+cos*t,y:cy+sin*t};
@@ -1021,27 +948,120 @@
             if(!connections.length)return;
             if(confirm("¿Desconectar todo?")){connections=[];redrawAllConnections();updateConnections();showTemporaryMessage("🔌 Todo desconectado");}
         }
+        
         function exportDiagram(){
-            const origTransform=document.getElementById('canvas-container').style.transform;
-            document.getElementById('canvas-container').style.transform='none';
-            html2canvas(document.getElementById('canvas'),{scale:2,backgroundColor:'#111'}).then(canvas=>{
-                document.getElementById('canvas-container').style.transform=origTransform;
-                const a=document.createElement('a');
-                a.download=`flujo-av-nivel${currentLevel}.png`; a.href=canvas.toDataURL('image/png'); a.click();
-                showTemporaryMessage("📸 PNG exportado");
-            });
+            if(!placed.length){showTemporaryMessage("❌ No hay tarjetas para exportar");return;}
+            document.getElementById('loading-overlay').classList.add('active');
             hideContextMenu();
-        }
-        function autoArrange() {
-            if(!placed.length) return;
-            const cols=Math.ceil(Math.sqrt(placed.length));
-            placed.forEach((p,i)=>{
-                p.el.style.left=(100+(i%cols)*220)+'px';
-                p.el.style.top=(100+Math.floor(i/cols)*180)+'px';
+            
+            // Calcular bounding box de tarjetas
+            let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+            placed.forEach(p=>{
+                const el=p.el;
+                const l=parseFloat(el.style.left)||0, t=parseFloat(el.style.top)||0;
+                minX=Math.min(minX,l); minY=Math.min(minY,t);
+                maxX=Math.max(maxX,l+el.offsetWidth); maxY=Math.max(maxY,t+el.offsetHeight);
             });
-            redrawAllConnections(); zoomFit();
-            showTemporaryMessage("📐 Tarjetas organizadas");
+            
+            const margin = 80;
+            const contentW = maxX - minX + margin*2;
+            const contentH = maxY - minY + margin*2;
+            const targetRatio = 16/9;
+            let exportW, exportH;
+            
+            if(contentW/contentH > targetRatio){
+                exportW = contentW;
+                exportH = contentW / targetRatio;
+            } else {
+                exportH = contentH;
+                exportW = contentH * targetRatio;
+            }
+            
+            const offsetX = (exportW - contentW)/2;
+            const offsetY = (exportH - contentH)/2;
+            
+            // Crear un contenedor temporal para la exportación
+            const tempContainer = document.createElement('div');
+            tempContainer.style.cssText = `position:absolute;top:0;left:0;width:${exportW}px;height:${exportH}px;background:#111;overflow:hidden;`;
+            tempContainer.innerHTML = `
+                <svg width="${exportW}" height="${exportH}" style="position:absolute;top:0;left:0;pointer-events:none;z-index:1;">
+                    <defs>
+                        <marker id="arrowhead-export" markerWidth="12" markerHeight="8" refX="12" refY="4" orient="auto">
+                            <polygon points="0 0, 12 4, 0 8" fill="#00ff88"/>
+                        </marker>
+                    </defs>
+                    ${connections.map(conn=>{
+                        const fe=conn.fromEl, te=conn.toEl;
+                        if(!fe||!te||!document.contains(fe)||!document.contains(te)) return '';
+                        const fl=parseFloat(fe.style.left||0), ft=parseFloat(fe.style.top||0);
+                        const tl=parseFloat(te.style.left||0), tt=parseFloat(te.style.top||0);
+                        const fw=fe.offsetWidth, fh=fe.offsetHeight;
+                        const tw=te.offsetWidth, th=te.offsetHeight;
+                        
+                        const fcx = (fl - minX + margin + offsetX) + fw/2;
+                        const fcy = (ft - minY + margin + offsetY) + fh/2;
+                        const tcx = (tl - minX + margin + offsetX) + tw/2;
+                        const tcy = (tt - minY + margin + offsetY) + th/2;
+                        
+                        const ang2 = Math.atan2(tcy-fcy, tcx-fcx);
+                        const fEdge = getExportEdge(fcx,fcy,fw,fh,ang2);
+                        const tEdge = getExportEdge(tcx,tcy,tw,th,ang2+Math.PI);
+                        
+                        const isDirect=isDirectConnection(conn.from,conn.to);
+                        const isNet=networkCables.includes(conn.from)||networkCables.includes(conn.to);
+                        const isHDMI=hdmiCables.includes(conn.from)||hdmiCables.includes(conn.to);
+                        const isSDI=sdiCables.includes(conn.from)||sdiCables.includes(conn.to);
+                        let color='#00ff88';
+                        if(isDirect) color='#ffaa00'; if(isNet) color='#4488ff';
+                        if(isHDMI) color='#ff6600'; if(isSDI) color='#ff3300';
+                        
+                        const mx=(fEdge.x+tEdge.x)/2, my=(fEdge.y+tEdge.y)/2;
+                        const dash = isDirect?'stroke-dasharray="4,4"':(isNet?'stroke-dasharray="8,4"':'');
+                        return `<path d="M ${fEdge.x} ${fEdge.y} Q ${mx} ${my} ${tEdge.x} ${tEdge.y}" stroke="${color}" stroke-width="3" fill="none" marker-end="url(#arrowhead-export)" ${dash}/>`;
+                    }).join('')}
+                </svg>
+            `;
+            
+            // Clonar tarjetas
+            placed.forEach(p=>{
+                const el=p.el;
+                const clone = el.cloneNode(true);
+                clone.style.position = 'absolute';
+                clone.style.left = (parseFloat(el.style.left||0) - minX + margin + offsetX) + 'px';
+                clone.style.top = (parseFloat(el.style.top||0) - minY + margin + offsetY) + 'px';
+                clone.style.zIndex = '10';
+                clone.querySelectorAll('.resize-handle').forEach(h=>h.remove());
+                clone.querySelector('.size-info')?.remove();
+                tempContainer.appendChild(clone);
+            });
+            
+            document.body.appendChild(tempContainer);
+            
+            setTimeout(()=>{
+                html2canvas(tempContainer,{scale:2,backgroundColor:'#111',width:exportW,height:exportH}).then(exportedCanvas=>{
+                    tempContainer.remove();
+                    const link=document.createElement('a');
+                    link.download=`flujo-av-${teamName.replace(/\s+/g,'-')}-nivel${currentLevel}.png`;
+                    link.href=exportedCanvas.toDataURL('image/png');
+                    link.click();
+                    document.getElementById('loading-overlay').classList.remove('active');
+                    showTemporaryMessage("📸 Diagrama exportado en 16:9");
+                }).catch(err=>{
+                    tempContainer.remove();
+                    document.getElementById('loading-overlay').classList.remove('active');
+                    showTemporaryMessage("❌ Error al exportar");
+                    console.error(err);
+                });
+            },100);
         }
+
+        function getExportEdge(cx, cy, w, h, angle) {
+            const hw=w/2+4, hh=h/2+4;
+            const cos=Math.cos(angle), sin=Math.sin(angle);
+            let t=Math.abs(cos*hh)>Math.abs(sin*hw)?hw/Math.abs(cos):hh/Math.abs(sin);
+            return{x:cx+cos*t,y:cy+sin*t};
+        }
+
         function showTemporaryMessage(msg){
             const d=document.createElement('div');
             d.style.cssText=`position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:${msg.includes('❌')?'#ff4444':'#00ff88'};padding:10px 20px;border-radius:8px;border:2px solid ${msg.includes('❌')?'#ff4444':'#00ff88'};z-index:9999;font-weight:bold;animation:fadeInOut 2.5s forwards;max-width:80%;text-align:center;font-size:13px;`;
@@ -1106,7 +1126,14 @@
             }
             
             if(pIds.includes('youtube')&&!pIds.includes('rtmp')) failures.push("YouTube requiere RTMP");
-            if((pIds.includes('ndi')||pIds.includes('srt'))&&!pIds.includes('switch')) failures.push("NDI/SRT requiere SWITCHER");
+            
+            if((pIds.includes('ndi')||pIds.includes('srt'))){
+                if(!pIds.includes('switch')) failures.push("NDI/SRT requiere SWITCHER DE RED");
+                else {
+                    const switchConnected = connections.some(c => (c.from==='switch' || c.to==='switch'));
+                    if(!switchConnected) failures.push("El Switcher de Red debe estar conectado al flujo NDI/SRT");
+                }
+            }
             
             if(pIds.includes('mixer')){
                 const mixerToHW=connections.some(c=>
@@ -1119,130 +1146,79 @@
             
             const fd=document.getElementById('failures');
             if(!failures.length){
+                stopTimer();
                 const pts=Math.max(200,1000-time*5);
-                levelHistory.push({
-                    level: currentLevel,
-                    difficulty: lvl.difficulty,
-                    score: pts,
-                    time: time,
-                    helpsUsed: 3 - helpCount
-                });
-                
-                fd.innerHTML='<div class="success">✅ ¡Flujo correcto!</div>';
-                score+=pts; document.getElementById('score').textContent=score;
-                
-                if(currentLevel===5){
-                    setTimeout(()=>showFinalResults(),400);
-                }else{
-                    setTimeout(()=>{
-                        alert(`✅ Nivel ${currentLevel} completo!\n+${pts} pts\n⭐ Total: ${score}`);
-                        nextLevel();
-                    },300);
+                if(!levelCompleted){
+                    levelHistory.push({level:currentLevel,difficulty:lvl.difficulty,score:pts,time:time});
+                    score+=pts; 
+                    document.getElementById('score').textContent=score;
+                    levelCompleted=true;
                 }
+                fd.innerHTML='<div class="success">✅ ¡Flujo correcto! +'+pts+' pts. Podés revisar, exportar y luego presionar "Siguiente".</div>';
             }else{
+                if(!timerStopped){
+                    score=Math.max(0,score-50);
+                    document.getElementById('score').textContent=score;
+                    showTemporaryMessage("❌ Hay errores. -50 puntos. El tiempo sigue corriendo.");
+                }
                 fd.innerHTML=failures.map(f=>`<div class="failure">⚠️ ${f}</div>`).join('');
             }
         }
 
         function showFinalResults() {
-            const totalTime = levelHistory.reduce((s,l)=>s+l.time, 0);
-            const totalHelps = levelHistory.reduce((s,l)=>s+l.helpsUsed, 0);
-            
-            let stars = '';
-            if (score >= 4000) stars = '⭐⭐⭐⭐⭐';
-            else if (score >= 3000) stars = '⭐⭐⭐⭐';
-            else if (score >= 2000) stars = '⭐⭐⭐';
-            else if (score >= 1000) stars = '⭐⭐';
-            else stars = '⭐';
-            
-            let tableRows = levelHistory.map(l => `
-                <tr>
-                    <td>${l.level}</td>
-                    <td><span class="badge-level" style="background:${getDifficultyColor(l.difficulty)};color:${l.difficulty==='MEDIO'?'#000':'#fff'};">${l.difficulty}</span></td>
-                    <td>+${l.score}</td>
-                    <td>${l.time}s</td>
-                    <td>${l.helpsUsed}</td>
-                </tr>
+            const totalTime = levelHistory.reduce((s,l)=>s+l.time,0);
+            let stars = score>=4000?'⭐⭐⭐⭐⭐':score>=3000?'⭐⭐⭐⭐':score>=2000?'⭐⭐⭐':score>=1000?'⭐⭐':'⭐';
+            let tableRows = levelHistory.map(l=>`
+                <tr><td>${l.level}</td><td><span class="badge-level" style="background:${getDifficultyColor(l.difficulty)};color:${l.difficulty==='MEDIO'?'#000':'#fff'};">${l.difficulty}</span></td><td>+${l.score}</td><td>${l.time}s</td></tr>
             `).join('');
-            
-            const html = `
-                <div style="font-size:48px;">🏆</div>
-                <h1>¡JUEGO COMPLETADO!</h1>
-                <div class="team-name">${teamName}</div>
-                
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Nivel</th>
-                            <th>Dificultad</th>
-                            <th>Puntaje</th>
-                            <th>Tiempo</th>
-                            <th>Ayudas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableRows}
-                    </tbody>
-                </table>
-                
-                <div class="results-total">
-                    <div class="results-stars">${stars}</div>
-                    ⭐ Puntaje Total: <b>${score}</b><br>
-                    ⏱️ Tiempo Total: <b>${totalTime}s</b><br>
-                    🆘 Ayudas Totales: <b>${totalHelps}</b>
-                </div>
-                
+            document.getElementById('results-modal').innerHTML=`
+                <div style="font-size:48px;">🏆</div><h1>¡JUEGO COMPLETADO!</h1><div class="team-name">${teamName}</div>
+                <table class="results-table"><thead><tr><th>Nivel</th><th>Dificultad</th><th>Puntaje</th><th>Tiempo</th></tr></thead><tbody>${tableRows}</tbody></table>
+                <div class="results-total"><div class="results-stars">${stars}</div>⭐ Puntaje Total: <b>${score}</b><br>⏱️ Tiempo Total: <b>${totalTime}s</b></div>
                 <p style="color:#888;font-size:12px;">¡Comparte este resultado con tu equipo!</p>
-                
                 <button onclick="restartGame()">🔄 JUGAR DE NUEVO</button>
                 <button onclick="exportResults()" style="background:#004466;">📸 Exportar Resultados</button>
             `;
-            
-            document.getElementById('results-modal').innerHTML = html;
             document.getElementById('results-overlay').classList.add('active');
         }
 
         function exportResults() {
-            const modal = document.getElementById('results-modal');
-            html2canvas(modal, {scale: 2, backgroundColor: '#1a1a1a'}).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `resultado-${teamName.replace(/\s+/g,'-')}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+            html2canvas(document.getElementById('results-modal'),{scale:2,backgroundColor:'#1a1a1a'}).then(canvas=>{
+                const link=document.createElement('a');
+                link.download=`resultado-${teamName.replace(/\s+/g,'-')}.png`;
+                link.href=canvas.toDataURL('image/png');link.click();
                 showTemporaryMessage("📸 Resultados exportados como PNG");
             });
         }
 
         function restartGame() {
             document.getElementById('results-overlay').classList.remove('active');
-            currentLevel = 1; score = 0; levelHistory = [];
-            document.getElementById('score').textContent = '0';
-            document.getElementById('level').textContent = '1';
-            document.getElementById('team-name-header').textContent = 'Equipo: ' + teamName;
-            helpCount = 3;
-            zoomLevel = 1; panX = 0; panY = 0;
-            updateTransform(); updateZoomDisplay();
-            resetLevel();
+            currentLevel=1;score=0;levelHistory=[];
+            document.getElementById('score').textContent='0';
+            document.getElementById('level').textContent='1';
+            document.getElementById('team-name-header').textContent='Equipo: '+teamName;
+            zoomLevel=1;panX=0;panY=0;levelCompleted=false;timerStopped=false;hintRevealed=false;
+            document.getElementById('hint-box').style.display='none';
+            updateTransform();updateZoomDisplay();resetLevel();
         }
 
         function nextLevel(){
-            if(currentLevel>=5){
-                showFinalResults();
-                return;
-            }
+            if(currentLevel>=5){showFinalResults();return;}
+            if(!levelCompleted){showTemporaryMessage("⚠️ Debes verificar y completar el nivel actual antes de avanzar.");return;}
             currentLevel++;
             document.getElementById('level').textContent=currentLevel;
             const lvl=levels[currentLevel-1];
             document.getElementById('difficulty-badge').textContent=lvl.difficulty;
             document.getElementById('difficulty-badge').style.background=getDifficultyColor(lvl.difficulty);
             document.getElementById('difficulty-badge').style.color=lvl.difficulty==='MEDIO'?'#000':'#fff';
-            helpCount=3; document.getElementById('hint-box').style.display='none';
-            zoomLevel=1; panX=0; panY=0; updateTransform(); updateZoomDisplay();
+            zoomLevel=1;panX=0;panY=0;updateTransform();updateZoomDisplay();
+            levelCompleted=false;timerStopped=false;hintRevealed=false;
+            document.getElementById('hint-box').style.display='none';
             resetLevel();
         }
 
         function resetLevel(){
-            placed=[]; connections=[]; selected=null;
+            placed=[];connections=[];selected=null;
             document.getElementById('failures').innerHTML='';
             document.getElementById('connections').innerHTML='';
             document.getElementById('level').textContent=currentLevel;
@@ -1252,7 +1228,7 @@
             document.getElementById('difficulty-badge').style.background=getDifficultyColor(lvl.difficulty);
             document.getElementById('difficulty-badge').style.color=lvl.difficulty==='MEDIO'?'#000':'#fff';
             renderObjective();
-            initStock(); initCanvas(); renderDeck(); startTimer();
+            initStock();initCanvas();renderDeck();startTimer();
         }
 
         function initGame() {
@@ -1260,17 +1236,16 @@
             document.getElementById('difficulty-badge').textContent=lvl.difficulty;
             document.getElementById('difficulty-badge').style.background=getDifficultyColor(lvl.difficulty);
             renderObjective();
-            initStock(); renderDeck(); initCanvas(); resetLevel();
+            initStock();renderDeck();initCanvas();resetLevel();
             updateZoomDisplay();
         }
 
         document.addEventListener('click',(e)=>{
             if(!e.target.closest('.context-menu')&&!e.target.closest('.placed')){hideContextMenu();deselectCard();}
-            if(e.target===document.getElementById('rules-overlay')) closeRulesModal();
         });
         document.addEventListener('keydown',(e)=>{
-            if(e.key==='Escape'){hideContextMenu();deselectCard();closeRulesModal();}
-            if(e.key==='Delete'&&contextTarget) deleteSelected();
+            if(e.key==='Escape'){hideContextMenu();deselectCard();}
+            if(e.key==='Delete'&&contextTarget)deleteSelected();
             if(e.ctrlKey&&e.key==='='){e.preventDefault();zoomIn();}
             if(e.ctrlKey&&e.key==='-'){e.preventDefault();zoomOut();}
             if(e.ctrlKey&&e.key==='0'){e.preventDefault();zoomReset();}
